@@ -20,10 +20,10 @@ public class RepositorioPropietario : Conexion
 		int res = -1;
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
-			string sql = @"INSERT INTO Propietarios 
-					(Nombre, Apellido, Dni, Telefono, Email,)
+			string sql = @"INSERT INTO Propietario 
+					(Nombre, Apellido, Dni, Telefono, Email)
 					VALUES (@nombre, @apellido, @dni, @telefono, @email);
-					SELECT LAST_INSERT_ID;";
+					SELECT LAST_INSERT_ID();";
 
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
@@ -77,15 +77,42 @@ public class RepositorioPropietario : Conexion
 
 					};
 					listaP.Add(p);
-  	
+
 				}
 				connection.Close();
+			}
+			return listaP;
 		}
-            return listaP;
+
+	}
+
+  
+  
+  public int Baja(Propietario p)
+	{
+		int res = -1;
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"UPDATE  Propietario 
+					SET estado = 0
+					WHERE idPropietario = @idPropietario ;
+					";
+
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.CommandType = CommandType.Text;
+				command.Parameters.AddWithValue("idPropietario", p.IdPropietario);
+
+				
+				connection.Open();
+
+				res = Convert.ToInt32(command.ExecuteScalar());
+
+				p.IdPropietario = res;
+				connection.Close();
+			}
 		}
-
-   }
-
-
+		return res;
+	}
 
 }
