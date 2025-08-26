@@ -8,8 +8,17 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="Crear">
+        
+     
+        <form asp-action = "Procesar" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+             <label asp-for="IdPropietario" class="control-label"></label>
+            <input asp-for="IdPropietario" class="form-control" />
+            </div>
+            <!-- botton para buscar -->
+            <button type="submit" name ="accion" value="Buscar" class="btn btn-primary">Buscar</button>
+
             <div class="form-group">
                 <label asp-for="Nombre" class="control-label"></label>
                 <input asp-for="Nombre" class="form-control" />
@@ -37,8 +46,18 @@
             </div>
            
             <div class="form-group">
-                <input type="submit" value="Crear" class="btn btn-primary" />
+                <button type="submit" name="accion" value="Crear" class="btn btn-primary ">Crear</button>
+                <button type="submit" name="accion" value="Modificar" class = "btn btn-warning">Modificar</button>
             </div>
         </form>
     </div>
 </div>
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Mensaje
+    </div>
+}
+
+
+
