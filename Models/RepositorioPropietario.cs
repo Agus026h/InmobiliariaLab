@@ -54,6 +54,7 @@ public class RepositorioPropietario : Conexion
 			String sql = @"Select
 			IdPropietario, nombre, apellido, dni, email, telefono
 			From Propietario
+			WHERE estado = 1
 			";
 
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -88,7 +89,7 @@ public class RepositorioPropietario : Conexion
 
 
 
-	public int Baja(Propietario p)
+	public int Baja(int id)
 	{
 		int res = -1;
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -101,14 +102,14 @@ public class RepositorioPropietario : Conexion
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
 				command.CommandType = CommandType.Text;
-				command.Parameters.AddWithValue("@idPropietario", p.IdPropietario);
+				command.Parameters.AddWithValue("@idPropietario", id);
 
 
 				connection.Open();
 
 				res = command.ExecuteNonQuery();
 
-				p.IdPropietario = res;
+				
 				connection.Close();
 			}
 		}

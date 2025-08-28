@@ -56,12 +56,18 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
+                
                 <td>
                     <a asp-action="Editar" asp-route-id="@item.IdPropietario">Editar</a> |
                     <!-- 
                     <a asp-action="Detalles" asp-route-id="@item.IdPropietario">Detalles</a> |
                     -->
-                    <a asp-action="Borrar" asp-route-id="@item.IdPropietario">Borrar</a>
+
+                    <form asp-action="Borrar" asp-route-id="@item.IdPropietario" method="post"
+                     onsubmit="return confirm('Seguro que desea borrar este propietario?');"
+                     style="display:inline;">
+                      <button type="submit" class="btn btn-link p-0">Borrar</button>
+                    </form>
                 </td>
             </tr>
         }

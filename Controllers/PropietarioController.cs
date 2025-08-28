@@ -26,7 +26,7 @@ namespace devs.Controllers
             }
             catch (Exception ex)
             {
-                 TempData["Message"] = "Error al cargar los inquilinos: ";
+                TempData["Message"] = "Error al cargar los inquilinos: ";
                 return View(new List<Propietario>());
             }
         }
@@ -40,7 +40,7 @@ namespace devs.Controllers
         }
 
 
-        
+
         // POST: Propietario/Crear
         [HttpPost] // para el submit
 
@@ -94,35 +94,48 @@ namespace devs.Controllers
         }
 
        */
-        
+
         [HttpGet]
         public ActionResult Editar(int id)
         {
-        try
+            try
+            {
+                var propietario = _repositorio.buscarId(id);
+                if (propietario == null)
+                {
+                    TempData["Message"] = "No se encontro el propietario con ese ID";
+                    return RedirectToAction(nameof(Index));
+                }
+
+
+                return View("Crear", propietario);
+            }
+            catch (Exception ex)
+            {
+                TempData["Message"] = "Error al cargar el propietario: " + ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+
+        [HttpPost]
+        public ActionResult Borrar(int id)
         {
-        var propietario = _repositorio.buscarId(id);
-        if (propietario == null)
-        {
-            TempData["Message"] = "No se encontro el propietario con ese ID";
+            try
+            {
+                _repositorio.Baja(id);
+                TempData["Message"] = " Propietario borrado con exito";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+
+
+            }
             return RedirectToAction(nameof(Index));
-        }
 
-        
-        return View("Crear", propietario);
         }
-        catch (Exception ex)
-        {
-        TempData["Message"] = "Error al cargar el propietario: " + ex.Message;
-        return RedirectToAction(nameof(Index));
-        }
-}
-
 
     }
-    
 
-
-
-
-    
 }

@@ -19,9 +19,9 @@ namespace devs.Controllers
                 var lista = _repositorio.verTodos();
                 return View(lista);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                 TempData["Message"] = "Error al cargar los inquilinos: ";
+                TempData["Message"] = "Error al cargar los inquilinos: ";
                 return View(new List<Inquilino>());
             }
         }
@@ -104,13 +104,33 @@ namespace devs.Controllers
                 return View(inq);
             }
         }
- 
+
+
+        [HttpPost]
+        public ActionResult Borrar(int id)
+        {
+            try
+            {
+                _repositorio.Baja(id);
+                TempData["Message"] = " Inquilino borrado con exito";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+
+
+            }
+            return RedirectToAction(nameof(Index));
+
+
+
+        }
+
+
+
+
+
+
+
     }
-    
-
-
-    
-
-
-
 }

@@ -58,8 +58,14 @@
                 </td>
                 <td>
                     <a asp-action="Modificar" asp-route-id="@item.IdInquilino">Editar</a> |
-                    <a asp-action="Detalles" asp-route-id="@item.IdInquilino">Detalles</a> |
-                    <a asp-action="Borrar" asp-route-id="@item.IdInquilino">Borrar</a>
+                    
+                    <!--<a asp-action="Detalles" asp-route-id="@item.IdInquilino">Detalles</a> -->
+
+                    <form asp-action="Borrar" asp-route-id="@item.IdInquilino" method="post"
+                     onsubmit="return confirm('Seguro que desea borrar este Inquilino?');"
+                     style="display:inline;">
+                      <button type="submit" class="btn btn-link p-0">Borrar</button>
+                    </form>
                 </td>
             </tr>
         }

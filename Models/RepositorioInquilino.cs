@@ -54,6 +54,7 @@ public class RepositorioInquilino : Conexion
 			String sql = @"Select
 			idInquilino, nombre, apellido, dni, email, telefono
 			From inquilino
+			WHERE estado =1
 			";
 
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -88,12 +89,12 @@ public class RepositorioInquilino : Conexion
 
 
 
-	public int Baja(Inquilino inq)
+	public int Baja(int id)
 	{
 		int res = -1;
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
-			string sql = @"UPDATE  inq
+			string sql = @"UPDATE  inquilino
 					SET estado = 0
 					WHERE idInquilino = @idInquilino ;
 					";
@@ -101,14 +102,14 @@ public class RepositorioInquilino : Conexion
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
 				command.CommandType = CommandType.Text;
-				command.Parameters.AddWithValue("@idInquilino", inq.IdInquilino);
+				command.Parameters.AddWithValue("@idInquilino", id);
 
 
 				connection.Open();
                 // ExecuteNonQuery para los Update
 				res = command.ExecuteNonQuery();
 
-				inq.IdInquilino = res;
+				
 				connection.Close();
 			}
 		}
