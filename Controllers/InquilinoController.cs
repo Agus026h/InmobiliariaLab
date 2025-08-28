@@ -46,7 +46,8 @@ namespace devs.Controllers
                 if (inquilino == null)
                 {
 
-                    return NotFound();
+                    TempData["Message"] = "No se encontro al inquilino";
+                    return RedirectToAction(nameof(Index));
                 }
 
                 return View(inquilino);
@@ -117,6 +118,7 @@ namespace devs.Controllers
             }
             catch (Exception ex)
             {
+                TempData["Message"] = "No se pudo borrar el inquilino";
 
 
             }
