@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 23-08-2025 a las 01:16:30
+-- Tiempo de generación: 28-08-2025 a las 22:16:58
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -26,10 +26,10 @@ USE `inmobiliaria1`;
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `contratos`
+-- Estructura de tabla para la tabla `contrato`
 --
 
-CREATE TABLE `contratos` (
+CREATE TABLE `contrato` (
   `idContrato` int(11) NOT NULL,
   `fechaInicio` date NOT NULL,
   `fechaFinOriginal` date NOT NULL,
@@ -45,10 +45,10 @@ CREATE TABLE `contratos` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `inmuebles`
+-- Estructura de tabla para la tabla `inmueble`
 --
 
-CREATE TABLE `inmuebles` (
+CREATE TABLE `inmueble` (
   `idInmueble` int(11) NOT NULL,
   `direccion` varchar(200) NOT NULL,
   `uso` varchar(45) NOT NULL,
@@ -62,25 +62,26 @@ CREATE TABLE `inmuebles` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `inquilinos`
+-- Estructura de tabla para la tabla `inquilino`
 --
 
-CREATE TABLE `inquilinos` (
+CREATE TABLE `inquilino` (
   `idInquilino` int(11) NOT NULL,
   `dni` varchar(20) NOT NULL,
   `nombre` varchar(45) NOT NULL,
   `apellido` varchar(45) NOT NULL,
   `telefono` varchar(45) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL
+  `email` varchar(100) DEFAULT NULL,
+  `estado` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `pagos`
+-- Estructura de tabla para la tabla `pago`
 --
 
-CREATE TABLE `pagos` (
+CREATE TABLE `pago` (
   `idPago` int(11) NOT NULL,
   `numPago` int(11) NOT NULL,
   `fechaPago` date NOT NULL,
@@ -95,25 +96,26 @@ CREATE TABLE `pagos` (
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `propietarios`
+-- Estructura de tabla para la tabla `propietario`
 --
 
-CREATE TABLE `propietarios` (
+CREATE TABLE `propietario` (
   `idPropietario` int(11) NOT NULL,
   `dni` varchar(20) NOT NULL,
   `nombre` varchar(45) NOT NULL,
   `apellido` varchar(45) NOT NULL,
   `telefono` varchar(45) DEFAULT NULL,
-  `email` varchar(100) DEFAULT NULL
+  `email` varchar(100) DEFAULT NULL,
+  `estado` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
 --
--- Estructura de tabla para la tabla `usuarios`
+-- Estructura de tabla para la tabla `usuario`
 --
 
-CREATE TABLE `usuarios` (
+CREATE TABLE `usuario` (
   `idUsuario` int(11) NOT NULL,
   `email` varchar(100) NOT NULL,
   `password` varchar(255) NOT NULL,
@@ -125,9 +127,9 @@ CREATE TABLE `usuarios` (
 --
 
 --
--- Indices de la tabla `contratos`
+-- Indices de la tabla `contrato`
 --
-ALTER TABLE `contratos`
+ALTER TABLE `contrato`
   ADD PRIMARY KEY (`idContrato`),
   ADD KEY `fk_contratos_inquilinos1_idx` (`idInquilino`),
   ADD KEY `fk_contratos_inmuebles1_idx` (`idInmueble`),
@@ -135,39 +137,39 @@ ALTER TABLE `contratos`
   ADD KEY `fk_contratos_usuarios2_idx` (`usuarioFinalizador`);
 
 --
--- Indices de la tabla `inmuebles`
+-- Indices de la tabla `inmueble`
 --
-ALTER TABLE `inmuebles`
+ALTER TABLE `inmueble`
   ADD PRIMARY KEY (`idInmueble`),
   ADD KEY `fk_inmuebles_propietarios_idx` (`idPropietario`);
 
 --
--- Indices de la tabla `inquilinos`
+-- Indices de la tabla `inquilino`
 --
-ALTER TABLE `inquilinos`
+ALTER TABLE `inquilino`
   ADD PRIMARY KEY (`idInquilino`),
   ADD UNIQUE KEY `dni_UNIQUE` (`dni`);
 
 --
--- Indices de la tabla `pagos`
+-- Indices de la tabla `pago`
 --
-ALTER TABLE `pagos`
+ALTER TABLE `pago`
   ADD PRIMARY KEY (`idPago`),
   ADD KEY `fk_pagos_contratos1_idx` (`idContrato`),
   ADD KEY `fk_pagos_usuarios1_idx` (`usuarioCreador`),
   ADD KEY `fk_pagos_usuarios2_idx` (`usuarioAnulador`);
 
 --
--- Indices de la tabla `propietarios`
+-- Indices de la tabla `propietario`
 --
-ALTER TABLE `propietarios`
+ALTER TABLE `propietario`
   ADD PRIMARY KEY (`idPropietario`),
   ADD UNIQUE KEY `dni_UNIQUE` (`dni`);
 
 --
--- Indices de la tabla `usuarios`
+-- Indices de la tabla `usuario`
 --
-ALTER TABLE `usuarios`
+ALTER TABLE `usuario`
   ADD PRIMARY KEY (`idUsuario`),
   ADD UNIQUE KEY `email_UNIQUE` (`email`);
 
@@ -176,39 +178,39 @@ ALTER TABLE `usuarios`
 --
 
 --
--- AUTO_INCREMENT de la tabla `contratos`
+-- AUTO_INCREMENT de la tabla `contrato`
 --
-ALTER TABLE `contratos`
+ALTER TABLE `contrato`
   MODIFY `idContrato` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `inmuebles`
+-- AUTO_INCREMENT de la tabla `inmueble`
 --
-ALTER TABLE `inmuebles`
+ALTER TABLE `inmueble`
   MODIFY `idInmueble` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `inquilinos`
+-- AUTO_INCREMENT de la tabla `inquilino`
 --
-ALTER TABLE `inquilinos`
+ALTER TABLE `inquilino`
   MODIFY `idInquilino` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `pagos`
+-- AUTO_INCREMENT de la tabla `pago`
 --
-ALTER TABLE `pagos`
+ALTER TABLE `pago`
   MODIFY `idPago` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `propietarios`
+-- AUTO_INCREMENT de la tabla `propietario`
 --
-ALTER TABLE `propietarios`
+ALTER TABLE `propietario`
   MODIFY `idPropietario` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT de la tabla `usuarios`
+-- AUTO_INCREMENT de la tabla `usuario`
 --
-ALTER TABLE `usuarios`
+ALTER TABLE `usuario`
   MODIFY `idUsuario` int(11) NOT NULL AUTO_INCREMENT;
 
 --
@@ -216,27 +218,27 @@ ALTER TABLE `usuarios`
 --
 
 --
--- Filtros para la tabla `contratos`
+-- Filtros para la tabla `contrato`
 --
-ALTER TABLE `contratos`
-  ADD CONSTRAINT `fk_contratos_inmuebles1` FOREIGN KEY (`idInmueble`) REFERENCES `inmuebles` (`idInmueble`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_contratos_inquilinos1` FOREIGN KEY (`idInquilino`) REFERENCES `inquilinos` (`idInquilino`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_contratos_usuarios1` FOREIGN KEY (`usuarioCreador`) REFERENCES `usuarios` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_contratos_usuarios2` FOREIGN KEY (`usuarioFinalizador`) REFERENCES `usuarios` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `contrato`
+  ADD CONSTRAINT `fk_contratos_inmuebles1` FOREIGN KEY (`idInmueble`) REFERENCES `inmueble` (`idInmueble`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_contratos_inquilinos1` FOREIGN KEY (`idInquilino`) REFERENCES `inquilino` (`idInquilino`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_contratos_usuarios1` FOREIGN KEY (`usuarioCreador`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_contratos_usuarios2` FOREIGN KEY (`usuarioFinalizador`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `inmuebles`
+-- Filtros para la tabla `inmueble`
 --
-ALTER TABLE `inmuebles`
-  ADD CONSTRAINT `fk_inmuebles_propietarios` FOREIGN KEY (`idPropietario`) REFERENCES `propietarios` (`idPropietario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `inmueble`
+  ADD CONSTRAINT `fk_inmuebles_propietarios` FOREIGN KEY (`idPropietario`) REFERENCES `propietario` (`idPropietario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 
 --
--- Filtros para la tabla `pagos`
+-- Filtros para la tabla `pago`
 --
-ALTER TABLE `pagos`
-  ADD CONSTRAINT `fk_pagos_contratos1` FOREIGN KEY (`idContrato`) REFERENCES `contratos` (`idContrato`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_pagos_usuarios1` FOREIGN KEY (`usuarioCreador`) REFERENCES `usuarios` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  ADD CONSTRAINT `fk_pagos_usuarios2` FOREIGN KEY (`usuarioAnulador`) REFERENCES `usuarios` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+ALTER TABLE `pago`
+  ADD CONSTRAINT `fk_pagos_contratos1` FOREIGN KEY (`idContrato`) REFERENCES `contrato` (`idContrato`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_pagos_usuarios1` FOREIGN KEY (`usuarioCreador`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  ADD CONSTRAINT `fk_pagos_usuarios2` FOREIGN KEY (`usuarioAnulador`) REFERENCES `usuario` (`idUsuario`) ON DELETE NO ACTION ON UPDATE NO ACTION;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
