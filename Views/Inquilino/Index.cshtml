@@ -1,10 +1,10 @@
-@model IEnumerable<devs.Models.Propietario>
+@model IEnumerable<devs.Models.Inquilino>
 
 @{
-    ViewData["Title"] = "Propietarios";
+    ViewData["Title"] = "Inquilino";
 }
 
-<h1>Listado de Propietarios</h1>
+<h1>Listado de Inquilinos</h1>
 
 <p>
     <a asp-action="Crear">Crear Nuevo Propietario</a>
@@ -14,7 +14,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.IdPropietario)
+                @Html.DisplayNameFor(model => model.IdInquilino)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Nombre)
@@ -39,7 +39,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IdPropietario)
+                    @Html.DisplayFor(modelItem => item.IdInquilino)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Nombre)
@@ -57,11 +57,9 @@
                     @Html.DisplayFor(modelItem => item.Email)
                 </td>
                 <td>
-                    <a asp-action="Editar" asp-route-id="@item.IdPropietario">Editar</a> |
-                    <!-- 
-                    <a asp-action="Detalles" asp-route-id="@item.IdPropietario">Detalles</a> |
-                    -->
-                    <a asp-action="Borrar" asp-route-id="@item.IdPropietario">Borrar</a>
+                    <a asp-action="Modificar" asp-route-id="@item.IdInquilino">Editar</a> |
+                    <a asp-action="Detalles" asp-route-id="@item.IdInquilino">Detalles</a> |
+                    <a asp-action="Borrar" asp-route-id="@item.IdInquilino">Borrar</a>
                 </td>
             </tr>
         }

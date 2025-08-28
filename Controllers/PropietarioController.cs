@@ -16,11 +16,19 @@ namespace devs.Controllers
         // GET: Propietario
         public ActionResult Index()
         {
+            try
+            {
 
-            var lista = _repositorio.verTodos();
+                var lista = _repositorio.verTodos();
 
-            //con esto le paso la lista de propietarios a la vista
-            return View(lista);
+                //con esto le paso la lista de propietarios a la vista
+                return View(lista);
+            }
+            catch (Exception ex)
+            {
+                 TempData["Message"] = "Error al cargar los inquilinos: ";
+                return View(new List<Propietario>());
+            }
         }
 
 
@@ -38,35 +46,42 @@ namespace devs.Controllers
 
         public IActionResult Procesar(Propietario p, string accion)
         {
-            switch (accion)
+            try
             {
-                case "Buscar":
-                    ModelState.Clear();
-                    var persona = _repositorio.buscarId(p.IdPropietario);
-                    if (persona != null)
-                        ViewBag.Mensaje = "Persona encontrada!" + persona.Nombre;
-                        
-                    else
-                        ViewBag.Mensaje = "No se encontro la persona con ese id";
-                    return View("Crear", persona);
+                switch (accion)
+                {
+                    case "Buscar":
+                        ModelState.Clear();
+                        var persona = _repositorio.buscarId(p.IdPropietario);
+                        if (persona != null)
+                            ViewBag.Mensaje = "Persona encontrada!" + persona.Nombre;
 
-                case "Crear":
+                        else
+                            ViewBag.Mensaje = "No se encontro la persona con ese id";
+                        return View("Crear", persona);
 
-                    _repositorio.Alta(p);
-                    ViewBag.Mensaje = "Propietario creado con exito";
-                    break;
+                    case "Crear":
 
-                case "Modificar":
+                        _repositorio.Alta(p);
+                        ViewBag.Mensaje = "Propietario creado con exito";
+                        break;
 
-                    _repositorio.ModificarPropietario(p);
-                    ViewBag.Mensaje = "Propietario modificado con exito";
-                    break;
-           
+                    case "Modificar":
+
+                        _repositorio.ModificarPropietario(p);
+                        ViewBag.Mensaje = "Propietario modificado con exito";
+                        break;
+
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.message = "Error al realizar la accion";
             }
             return View("Crear", p);
         }
 
-        
+
         /*
         [ValidateAntiForgeryToken]
 
@@ -79,13 +94,28 @@ namespace devs.Controllers
         }
 
        */
-
-        public ActionResult ModificarPropietario(Propietario p)
+        
+        [HttpGet]
+        public ActionResult Editar(int id)
         {
-            _repositorio.ModificarPropietario(p);
-            return View();
-
+        try
+        {
+        var propietario = _repositorio.buscarId(id);
+        if (propietario == null)
+        {
+            TempData["Message"] = "No se encontro el propietario con ese ID";
+            return RedirectToAction(nameof(Index));
         }
+
+        
+        return View("Crear", propietario);
+        }
+        catch (Exception ex)
+        {
+        TempData["Message"] = "Error al cargar el propietario: " + ex.Message;
+        return RedirectToAction(nameof(Index));
+        }
+}
 
 
     }
