@@ -1,0 +1,81 @@
+@model IEnumerable<devs.Models.Inmueble>
+
+@{
+    ViewData["Title"] = "Inmuebles";
+}
+
+<h1>Listado de Inmuebles</h1>
+
+<p>
+    <a asp-action="Crear">Crear Nuevo Inmueble</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdInmueble)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Direccion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Uso)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Ambientes)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Precio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdPropietario)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdInmueble)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Direccion)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Uso)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ambientes)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Precio)
+                </td>
+                <th>
+                    @item.Duenio.ToString()
+                </th>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Estado)
+                </td>
+                
+                <td>
+                    <a asp-action="Modificar" asp-route-id="@item.IdInmueble">Editar</a> |
+                    <!-- 
+                    <a asp-action="Detalles" asp-route-id="@item.IdInmueble">Detalles</a> |
+                    -->
+
+                    <form asp-action="Borrar" asp-route-id="@item.IdInmueble" method="post"
+                     onsubmit="return confirm('Seguro que desea borrar este inmueble?');"
+                     style="display:inline;">
+                      <button type="submit" class="btn btn-link p-0">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

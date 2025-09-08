@@ -80,7 +80,7 @@ namespace devs.Controllers
                 if (ModelState.IsValid)
                 {
 
-                    var inquilino = _repositorio.ModificarInquilino(inq);
+                    _repositorio.ModificarInquilino(inq);
                     TempData["Message"] = "Inquilino modificado correctamente";
                     return RedirectToAction(nameof(Index));
                 }

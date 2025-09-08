@@ -26,7 +26,7 @@ namespace devs.Controllers
             }
             catch (Exception ex)
             {
-                TempData["Message"] = "Error al cargar los inquilinos: ";
+                TempData["Message"] = "Error al cargar los Propietarios: ";
                 return View(new List<Propietario>());
             }
         }
