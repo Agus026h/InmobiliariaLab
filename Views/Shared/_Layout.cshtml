@@ -11,7 +11,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
+            <div class="container-fluid ">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">devs</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -19,11 +19,40 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                        <li class="nav-item hover-effect">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+
+                        <li class="nav-item dropdown hover-effect">
+                            <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu1">Inquilinos</a>
+                            <ul class="dropdown-menu" aria-labelledby="menu1">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="inquilino" asp-action="Index" >Listado de Inquilinos</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="inquilino" asp-action="Crear">Crear Inquilino</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown hover-effect">
+                            <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu2">Propietarios</a>
+                            <ul class="dropdown-menu" aria-labelledby="menu2">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Propietario" asp-action="Index" >Listado de Propietarios</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Propietario" asp-action="Crear">Crear Propietario</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown hover-effect">
+                            <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu3">Inmuebles</a>
+                            <ul class="dropdown-menu" aria-labelledby="menu3">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Inmueble" asp-action="Index" >Listado de inmuebles</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="inmueble" asp-action="Crear">Registrar inmueble</a></li>
+                            </ul>
+                        </li>
+                          
+                          <li class="nav-item dropdown hover-effect">
+                            <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu4">Contratos</a>
+                            <ul class="dropdown-menu" aria-labelledby="menu4">
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Contrato" asp-action="Index" >Listado de Contratos</a></li>
+                                <li><a class="dropdown-item" asp-area="" asp-controller="Contrato" asp-action="Crear">Crear Contrato</a></li>
+                            </ul>
                         </li>
                     </ul>
                 </div>
