@@ -12,21 +12,33 @@ namespace devs.Controllers
         }
 
         // GET: InquilinoController
-        public ActionResult Index()
+        
+        public ActionResult Index(bool? mostrarInactivos)
         {
             try
             {
-                var lista = _repositorio.verTodos();
+                IList<Inquilino> lista;
+
+                if (mostrarInactivos.GetValueOrDefault(false))
+                {
+                    
+                    lista = _repositorio.verTodos();
+                }
+                else
+                {
+                   
+                    lista = _repositorio.verActivos();
+                }
+
+                ViewBag.MostrarInactivos = mostrarInactivos.GetValueOrDefault(false);
                 return View(lista);
             }
             catch (Exception ex)
             {
-                TempData["Message"] = "Error al cargar los inquilinos: ";
+                TempData["Message"] = "Error al cargar los inquilinos.";
                 return View(new List<Inquilino>());
             }
         }
-
-
 
         public ActionResult Crear()
         {

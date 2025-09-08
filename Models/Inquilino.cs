@@ -10,19 +10,19 @@ public class Inquilino
     public int IdInquilino { get; set; }
 
     [Required]
-    public String Nombre { get; set; }
+    public string Nombre { get; set; }
     
     [Required]
-    public String Apellido { get; set; }
+    public string Apellido { get; set; }
 
     [Required]
-    public String Dni { get; set; }
+    public string Dni { get; set; }
 
     [Required, EmailAddress]
-    public String Email { get; set; }
+    public string Email { get; set; }
 
     [Required]
-    public String Telefono { get; set; }
+    public string Telefono { get; set; }
     
     public override string ToString()
     {

@@ -45,8 +45,51 @@ public class RepositorioInquilino : Conexion
 		}
 		return res;
 	}
-
+    //metodo para traer todos los inquilinos
 	public IList<Inquilino> verTodos()
+	{
+		IList<Inquilino> listaI = new List<Inquilino>();
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			String sql = @"Select
+			idInquilino, nombre, apellido, dni, email, telefono
+			From inquilino
+			
+			";
+
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+				while (reader.Read())
+				{
+					Inquilino inq = new Inquilino
+					{
+						IdInquilino = reader.GetInt32(nameof(Inquilino.IdInquilino)),
+						Nombre = reader.GetString("Nombre"),
+						Apellido = reader.GetString("Apellido"),
+						Dni = reader.GetString("Dni"),
+						Telefono = reader.GetString("Telefono"),
+						Email = reader.GetString("Email"),
+
+
+
+					};
+					listaI.Add(inq);
+
+				}
+				connection.Close();
+			}
+			return listaI;
+		}
+
+	}
+
+
+    //metodo para listar todos los activos
+    public IList<Inquilino> verActivos()
 	{
 		IList<Inquilino> listaI = new List<Inquilino>();
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
@@ -87,8 +130,6 @@ public class RepositorioInquilino : Conexion
 
 	}
 
-
-
 	public int Baja(int id)
 	{
 		int res = -1;
@@ -106,10 +147,10 @@ public class RepositorioInquilino : Conexion
 
 
 				connection.Open();
-                // ExecuteNonQuery para los Update
+				// ExecuteNonQuery para los Update
 				res = command.ExecuteNonQuery();
 
-				
+
 				connection.Close();
 			}
 		}
