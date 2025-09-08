@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 28-08-2025 a las 22:16:58
+-- Tiempo de generación: 08-09-2025 a las 08:38:59
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Base de datos: `inmobiliaria1`
 --
-CREATE DATABASE IF NOT EXISTS `inmobiliaria1` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `inmobiliaria1`;
 
 -- --------------------------------------------------------
 
@@ -51,11 +49,13 @@ CREATE TABLE `contrato` (
 CREATE TABLE `inmueble` (
   `idInmueble` int(11) NOT NULL,
   `direccion` varchar(200) NOT NULL,
-  `uso` varchar(45) NOT NULL,
+  `uso` enum('Residencial','Comercial') NOT NULL,
   `ambientes` int(11) NOT NULL,
   `precio` decimal(10,2) NOT NULL,
-  `disponible` tinyint(4) NOT NULL DEFAULT 1,
-  `coordenadas` varchar(200) DEFAULT NULL,
+  `latitud` decimal(30,0) NOT NULL,
+  `longitud` decimal(30,0) NOT NULL,
+  `estado` enum('Disponible','Alquilado','Vendido','Suspendido') NOT NULL DEFAULT 'Disponible',
+  `tipo` enum('Local','Deposito','Casa','Departamento') NOT NULL,
   `idPropietario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -72,7 +72,7 @@ CREATE TABLE `inquilino` (
   `apellido` varchar(45) NOT NULL,
   `telefono` varchar(45) DEFAULT NULL,
   `email` varchar(100) DEFAULT NULL,
-  `estado` tinyint(1) NOT NULL
+  `estado` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
