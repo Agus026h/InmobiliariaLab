@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace devs.Models;
 
@@ -15,10 +16,14 @@ public class Contrato
     public decimal MontoMensual { get; set; }
 
     public Boolean Estado { get; set; }
-
+    [Display(Name = "Inquilino")]
     public int IdInquilino { get; set; }
 
+    public Inquilino? InquilinoC { get; set; }
+    [Display(Name = "Inmueble")]
     public int IdInmueble { get; set; }
+
+    public Inmueble? InmuebleC {get; set;}
 
 
     //agregar despues cuando este usuario

@@ -25,6 +25,9 @@ public class Propietario
     [Required, EmailAddress]
     public string Email { get; set; }
 
+    public Boolean Estado { get; set; }
+    public IList<Inmueble>? InmueblesPropietario { get; set; }
+
     public override string ToString()
     {
         var res = $"{Nombre} {Apellido}";

@@ -13,12 +13,12 @@ public class Inmueble
     [Required]
     public int Ambientes { get; set; }
 
-    public decimal Precio{ get; set; }
+    public decimal Precio { get; set; }
 
-    
+
 
     public UsoInmueble Uso { get; set; }
-     
+
     [Required]
     public int Superficie { get; set; }
     public decimal Latitud { get; set; }
@@ -27,13 +27,17 @@ public class Inmueble
     [Display(Name = "Dueño")]
     public int IdPropietario { get; set; }
 
-    public EstadoInmueble Estado {get; set; }
+    public EstadoInmueble Estado { get; set; }
 
-    public TipoInmueble Tipo{ get; set; }
-    
+    public TipoInmueble Tipo { get; set; }
+
     public Propietario? Duenio { get; set; }
-    
+
     public string? Portada { get; set; }
-       
+
+    public override string ToString()
+    {
+        return $"{ Direccion}";
+    }
     
 }

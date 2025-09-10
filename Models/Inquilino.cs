@@ -23,6 +23,10 @@ public class Inquilino
 
     [Required]
     public string Telefono { get; set; }
+
+    public Boolean Estado { get; set; }
+
+    public IList<Contrato>? ContratosInquilino{ get; set; }
     
     public override string ToString()
     {
@@ -31,7 +35,7 @@ public class Inquilino
         if (!String.IsNullOrEmpty(Dni))
         {
 
-            res = res + $"{Dni}";
+            res = res + $" {Dni}";
 
         }
         return res;
