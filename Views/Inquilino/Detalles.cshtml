@@ -1,0 +1,79 @@
+@model devs.Models.Inquilino
+
+@{
+    ViewData["Title"] = "Detalles";
+}
+
+<h4>Detalles del Inquilino</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="form-group">
+            <label asp-for="IdInquilino" class="control-label"></label>
+            <input asp-for="IdInquilino" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Nombre" class="control-label"></label>
+            <input asp-for="Nombre" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Apellido" class="control-label"></label>
+            <input asp-for="Apellido" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Dni" class="control-label"></label>
+            <input asp-for="Dni" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Telefono" class="control-label"></label>
+            <input asp-for="Telefono" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" readonly />
+        </div>
+
+        <div class="form-group">
+                <label asp-for="Estado" class="control-label">Estado: </label>
+                <span>
+                    @(Model.Estado ? "Activo" : "Inactivo")
+                </span>
+        </div>
+        
+       <div class="d-flex justify-content-between align-items-center">
+       <a asp-action="Modificar" asp-route-id="@Model.IdInquilino" class="btn btn-primary">Editar Inquilino</a>
+       <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+       </div>
+    </div>
+    
+    <div class="col-md-6">
+        <h4>Inmuebles Alquilados</h4>
+        @if (Model.ContratosInquilino != null && Model.ContratosInquilino.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id Contrato</th>
+                        <th>Fecha Inicio</th>
+                        <th>Dirección del Inmueble</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contrato in Model.ContratosInquilino)
+                    {
+                        <tr>
+                            <td>@contrato.IdContrato</td>
+                            <td>@contrato.FechaInicio.ToShortDateString()</td>
+                            <td>@contrato.InmuebleC.Direccion</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Este inquilino no tiene contratos activos.</p>
+        }
+    </div>
+</div>

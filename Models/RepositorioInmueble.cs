@@ -191,56 +191,96 @@ public class RepositorioInmueble : Conexion
 	}
 
 
-    public Inmueble BuscarPorId(int idInmueble)
+	public Inmueble BuscarPorId(int idInmueble)
+	{
+		Inmueble inmueble = null;
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
-			Inmueble inmueble = null;
-			using (MySqlConnection connection = new MySqlConnection(connectionString))
-			{
-				string sql = @$"
+			string sql = @$"
 					SELECT idInmueble, direccion, uso, ambientes, precio, latitud, longitud, i.estado, tipo,
 			        p.idPropietario, p.nombre, p.apellido
 			        FROM Inmueble i INNER JOIN propietario p ON i.idPropietario = p.idPropietario
 					WHERE idInmueble=@id";
-				using (MySqlCommand command = new MySqlCommand(sql, connection))
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				//si uso add en ves de addWithValue le tengo que especificar el tipo de dato
+				command.Parameters.AddWithValue("@id", idInmueble);
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+				if (reader.Read())
 				{
-				 //si uso add en ves de addWithValue le tengo que especificar el tipo de dato
-				  command.Parameters.AddWithValue("@id", idInmueble);
-					command.CommandType = CommandType.Text;
-					connection.Open();
-					var reader = command.ExecuteReader();
-					if (reader.Read())
+					inmueble = new Inmueble
 					{
-						inmueble = new Inmueble
+						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+						Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value ? "" : reader.GetString(nameof(Inmueble.Direccion)),
+						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
+						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado))),
+						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+						Tipo = (TipoInmueble)Enum.Parse(typeof(TipoInmueble), reader.GetString(nameof(Inmueble.Tipo))),
+						Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+						Duenio = new Propietario
 						{
-							IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
-							Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value? "" : reader.GetString(nameof(Inmueble.Direccion)),
-							Uso  = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
-							Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
-							Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
-							Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble),reader.GetString(nameof(Inmueble.Estado))),
-							Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
-							Tipo = (TipoInmueble)Enum.Parse(typeof(TipoInmueble),reader.GetString(nameof(Inmueble.Tipo))),
-							Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
 							IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
-							Duenio = new Propietario
-							{
-								IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
-								Nombre = reader.GetString(nameof(Propietario.Nombre)),
-								Apellido = reader.GetString(nameof(Propietario.Apellido)),
-								
-							}
-						};
-					}
-					connection.Close();
+							Nombre = reader.GetString(nameof(Propietario.Nombre)),
+							Apellido = reader.GetString(nameof(Propietario.Apellido)),
+
+						}
+					};
 				}
+				connection.Close();
 			}
-			return inmueble;
 		}
-
-
-
-
-
+		return inmueble;
+	}
+	public IList<Inmueble> ObtenerPorPropietario(int idPropietario)
+    {
+    IList<Inmueble> lista = new List<Inmueble>();
+    using (MySqlConnection connection = new MySqlConnection(connectionString))
+    {
+        string sql = @"SELECT i.idInmueble, i.direccion, i.uso, i.ambientes, i.precio, i.latitud, i.longitud, i.estado, i.tipo,
+                p.idPropietario, p.nombre, p.apellido
+            FROM Inmueble i INNER JOIN propietario p ON i.idPropietario = p.idPropietario
+            WHERE i.idPropietario = @idPropietario";
+        
+        using (MySqlCommand command = new MySqlCommand(sql, connection))
+        {
+            command.Parameters.AddWithValue("@idPropietario", idPropietario);
+            command.CommandType = CommandType.Text;
+            connection.Open();
+            var reader = command.ExecuteReader();
+            
+            while (reader.Read())
+            {
+                Inmueble inmueble = new Inmueble
+                {
+                    IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+                    Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value ? "" : reader.GetString(nameof(Inmueble.Direccion)),
+                    Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
+                    Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+                    Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+                    Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado))),
+                    Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+                    Tipo = (TipoInmueble)Enum.Parse(typeof(TipoInmueble), reader.GetString(nameof(Inmueble.Tipo))),
+                    Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+                    IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                    Duenio = new Propietario
+                    {
+                        IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+                        Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                        Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                    }
+                };
+                lista.Add(inmueble);
+            }
+            connection.Close();
+        }
+    }
+    return lista;
+    }
 
 }
 

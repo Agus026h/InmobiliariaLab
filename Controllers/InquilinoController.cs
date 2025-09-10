@@ -6,13 +6,15 @@ namespace devs.Controllers
     public class InquilinoController : Controller
     {
         private readonly RepositorioInquilino _repositorio;
-        public InquilinoController(RepositorioInquilino repositorio)
+        private readonly RepositorioContrato _repositorioContrato;
+        public InquilinoController(RepositorioInquilino repositorio, RepositorioContrato repositorioContrato)
         {
             _repositorio = repositorio;
+            _repositorioContrato = repositorioContrato;
         }
 
         // GET: InquilinoController
-        
+
         public ActionResult Index(bool? mostrarInactivos)
         {
             try
@@ -21,12 +23,12 @@ namespace devs.Controllers
 
                 if (mostrarInactivos.GetValueOrDefault(false))
                 {
-                    
+
                     lista = _repositorio.verTodos();
                 }
                 else
                 {
-                   
+
                     lista = _repositorio.verActivos();
                 }
 
@@ -141,8 +143,21 @@ namespace devs.Controllers
         }
 
 
-
-
+        [HttpGet]
+        public ActionResult Detalles(int id)
+        {
+    
+         var inquilino = _repositorio.buscarId(id);
+    
+    
+         var contratos = _repositorioContrato.ObtenerContratosPorInquilino(id);
+    
+    
+         inquilino.ContratosInquilino = contratos;
+    
+          return View(inquilino);
+        }
+       
 
 
 
