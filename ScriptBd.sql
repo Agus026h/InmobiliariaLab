@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Servidor: 127.0.0.1
--- Tiempo de generación: 08-09-2025 a las 08:38:59
+-- Tiempo de generación: 10-09-2025 a las 11:35:47
 -- Versión del servidor: 10.4.28-MariaDB
 -- Versión de PHP: 8.2.4
 
@@ -33,12 +33,21 @@ CREATE TABLE `contrato` (
   `fechaFinOriginal` date NOT NULL,
   `fechaFinEfectiva` date DEFAULT NULL,
   `montoMensual` decimal(10,2) NOT NULL,
-  `estado` varchar(45) NOT NULL,
+  `estado` tinyint(1) NOT NULL DEFAULT 1,
   `idInquilino` int(11) NOT NULL,
   `idInmueble` int(11) NOT NULL,
-  `usuarioCreador` int(11) NOT NULL,
+  `usuarioCreador` int(11) DEFAULT NULL,
   `usuarioFinalizador` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `contrato`
+--
+
+INSERT INTO `contrato` (`idContrato`, `fechaInicio`, `fechaFinOriginal`, `fechaFinEfectiva`, `montoMensual`, `estado`, `idInquilino`, `idInmueble`, `usuarioCreador`, `usuarioFinalizador`) VALUES
+(1, '2025-09-04', '2025-09-20', NULL, 100000.00, 0, 1, 1, NULL, NULL),
+(2, '2025-05-08', '2026-10-22', NULL, 8000000.00, 1, 2, 3, NULL, NULL),
+(3, '2025-07-02', '2025-11-26', NULL, 120000.00, 1, 1, 2, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -59,6 +68,18 @@ CREATE TABLE `inmueble` (
   `idPropietario` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Volcado de datos para la tabla `inmueble`
+--
+
+INSERT INTO `inmueble` (`idInmueble`, `direccion`, `uso`, `ambientes`, `precio`, `latitud`, `longitud`, `estado`, `tipo`, `idPropietario`) VALUES
+(1, 'aristobulo 58', 'Residencial', 4, 5700000.00, 56, 55, 'Disponible', 'Deposito', 1),
+(2, 'San Martin 205', 'Comercial', 6, 80000000.00, 444, 1231, 'Alquilado', 'Local', 1),
+(3, 'Pinamar 120', 'Residencial', 4, 23123142.00, 6767, 11112, 'Suspendido', 'Casa', 2),
+(4, 'San Martin 500', 'Residencial', 1, 2312315.00, 890, 111, 'Vendido', 'Deposito', 3),
+(5, 'Avenida Callao 1249', 'Comercial', 2, 5000000.00, 778, 1233, 'Disponible', 'Local', 2),
+(6, 'Bulevar Oroño 1500', 'Comercial', 3, 80000000.00, 678, 1231, 'Vendido', 'Local', 3);
+
 -- --------------------------------------------------------
 
 --
@@ -74,6 +95,17 @@ CREATE TABLE `inquilino` (
   `email` varchar(100) DEFAULT NULL,
   `estado` tinyint(1) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `inquilino`
+--
+
+INSERT INTO `inquilino` (`idInquilino`, `dni`, `nombre`, `apellido`, `telefono`, `email`, `estado`) VALUES
+(1, '42133524', 'agustin', 'Herrera', '266427543655', 'agus@gmail.com', 0),
+(2, '3124141', 'lucia', 'Perez', '43245252', 'lu@hotmail.com', 1),
+(3, '22334455', 'Martin', 'Escudero', '55501291', 'martin@gmail.com', 1),
+(4, '88776655', 'Mariana', 'Perez', '365743236', 'mar@gmail.com', 0),
+(5, '00998831', 'Marcelo', 'Diaz', '123123151', 'Marce22@gmail.com', 1);
 
 -- --------------------------------------------------------
 
@@ -108,6 +140,15 @@ CREATE TABLE `propietario` (
   `email` varchar(100) DEFAULT NULL,
   `estado` tinyint(1) DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Volcado de datos para la tabla `propietario`
+--
+
+INSERT INTO `propietario` (`idPropietario`, `dni`, `nombre`, `apellido`, `telefono`, `email`, `estado`) VALUES
+(1, '445522321', 'Fabricio', 'Lucero', '131313124', 'Fabriii@hotlmaim.com', 1),
+(2, '475512321', 'Juan', 'Herrera', '13131444', 'juanchi@hotlmaim.com', 0),
+(3, '47444112', 'Fernando', 'Molina', '2213131', 'Fer@hotmail.com', 1);
 
 -- --------------------------------------------------------
 
@@ -181,19 +222,19 @@ ALTER TABLE `usuario`
 -- AUTO_INCREMENT de la tabla `contrato`
 --
 ALTER TABLE `contrato`
-  MODIFY `idContrato` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idContrato` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `inmueble`
 --
 ALTER TABLE `inmueble`
-  MODIFY `idInmueble` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idInmueble` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT de la tabla `inquilino`
 --
 ALTER TABLE `inquilino`
-  MODIFY `idInquilino` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idInquilino` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT de la tabla `pago`
@@ -205,7 +246,7 @@ ALTER TABLE `pago`
 -- AUTO_INCREMENT de la tabla `propietario`
 --
 ALTER TABLE `propietario`
-  MODIFY `idPropietario` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `idPropietario` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT de la tabla `usuario`
