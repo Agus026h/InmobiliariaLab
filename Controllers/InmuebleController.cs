@@ -132,5 +132,19 @@ namespace devs.Controllers
 
         }
 
+        public ActionResult Detalles(int id, [FromServices] RepositorioContrato repoContrato)
+        {
+            var inmueble = _repositorio.BuscarPorId(id);
+            if (inmueble == null)
+            {
+                TempData["Message"] = "No se encontró el inmueble.";
+                return RedirectToAction(nameof(Index));
+
+            }
+            inmueble.ContratosInmueble = repoContrato.ObtenerContratosPorInmueble(id);
+            return View(inmueble);
+
+        }
+
     }
 }

@@ -198,7 +198,7 @@ public class RepositorioInmueble : Conexion
 		{
 			string sql = @$"
 					SELECT idInmueble, direccion, uso, ambientes, precio, latitud, longitud, i.estado, tipo,
-			        p.idPropietario, p.nombre, p.apellido
+			        p.idPropietario, p.nombre, p.apellido, p.email
 			        FROM Inmueble i INNER JOIN propietario p ON i.idPropietario = p.idPropietario
 					WHERE idInmueble=@id";
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -227,6 +227,7 @@ public class RepositorioInmueble : Conexion
 							IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
 							Nombre = reader.GetString(nameof(Propietario.Nombre)),
 							Apellido = reader.GetString(nameof(Propietario.Apellido)),
+							Email = reader.GetString(nameof(Propietario.Email))
 
 						}
 					};

@@ -1,0 +1,82 @@
+@model devs.Models.Contrato
+
+@{
+    ViewData["Title"] = "Detalles del Contrato";
+}
+
+<h4>Detalles del Contrato</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <h5>Información del Contrato</h5>
+        <div class="form-group">
+            <label asp-for="IdContrato" class="control-label"></label>
+            <input asp-for="IdContrato" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+           <label asp-for="FechaInicio" class="control-label"></label>
+           <input type="text" class="form-control" value="@Model.FechaInicio.ToShortDateString()" readonly />
+        </div>
+        <div class="form-group">
+          <label asp-for="FechaFinOriginal" class="control-label"></label>
+          <input type="text" class="form-control" value="@(Model.FechaFinOriginal?.ToShortDateString())" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="FechaFinEfectiva" class="control-label"></label>
+            <input type="text" class="form-control" value="@(Model.FechaFinEfectiva?.ToShortDateString())" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="MontoMensual" class="control-label"></label>
+            <input asp-for="MontoMensual" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Estado" class="control-label"> Estado :</label>
+            <span> @(Model.Estado ? "Activo" : "Inactivo")</span>
+        </div>
+
+        <h5 class="mt-4">Información del Inquilino</h5>
+        @if (Model.InquilinoC != null)
+        {
+            <div class="form-group">
+                <label asp-for="InquilinoC.Nombre" class="control-label"></label>
+                <input asp-for="InquilinoC.Nombre" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label asp-for="InquilinoC.Apellido" class="control-label"></label>
+                <input asp-for="InquilinoC.Apellido" class="form-control" readonly />
+            </div>
+            <div class="form-group">
+                <label asp-for="InquilinoC.Dni" class="control-label"></label>
+                <input asp-for="InquilinoC.Dni" class="form-control" readonly />
+            </div>
+        }
+        else
+        {
+            <p>Datos del inquilino no disponibles.</p>
+        }
+
+        <h5 class="mt-4">Información del Inmueble</h5>
+        @if (Model.InmuebleC != null)
+        {
+            <div class="form-group">
+                <label asp-for="InmuebleC.Direccion" class="control-label"></label>
+                <input asp-for="InmuebleC.Direccion" class="form-control" readonly />
+            </div>
+           
+            <div class="form-group">
+                <label asp-for="InmuebleC.Tipo" class="control-label"></label>
+                <input asp-for="InmuebleC.Tipo" class="form-control" readonly />
+            </div>
+        }
+        else
+        {
+            <p>Datos del inmueble no disponibles.</p>
+        }
+        
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <a asp-action="Modificar" asp-route-id="@Model.IdContrato" class="btn btn-primary">Editar Contrato</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+        </div>
+    </div>
+</div>

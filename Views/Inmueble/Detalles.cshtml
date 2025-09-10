@@ -1,0 +1,93 @@
+@model devs.Models.Inmueble
+
+@{
+    ViewData["Title"] = "Detalles del Inmueble";
+}
+
+<h4>Detalles del Inmueble</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <h5>Información del Inmueble</h5>
+        <div class="form-group">
+            <label asp-for="IdInmueble" class="control-label"></label>
+            <input asp-for="IdInmueble" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Direccion" class="control-label"></label>
+            <input asp-for="Direccion" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Tipo" class="control-label"></label>
+            <input asp-for="Tipo" class="form-control" value="@Model.Tipo.ToString()" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Uso" class="control-label"></label>
+            <input asp-for="Uso" class="form-control" value="@Model.Uso.ToString()" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Ambientes" class="control-label"></label>
+            <input asp-for="Ambientes" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Precio" class="control-label"></label>
+            <input asp-for="Precio" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Estado" class="control-label"></label>
+            <input asp-for="Estado" class="form-control" value="@Model.Estado.ToString()" readonly />
+        </div>
+
+        <h5 class="mt-4">Información del Propietario</h5>
+        <div class="form-group">
+            <label asp-for="Duenio.Nombre" class="control-label"></label>
+            <input asp-for="Duenio.Nombre" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Duenio.Apellido" class="control-label"></label>
+            <input asp-for="Duenio.Apellido" class="form-control" readonly />
+        </div>
+        <div class="form-group">
+            <label asp-for="Duenio.Email" class="control-label"></label>
+            <input asp-for="Duenio.Email" class="form-control" readonly />
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <a asp-action="Modificar" asp-route-id="@Model.IdInmueble" class="btn btn-primary">Editar Inmueble</a>
+            <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <h5>Contratos Asociados</h5>
+        @if (Model.ContratosInmueble != null && Model.ContratosInmueble.Any())
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Id Contrato</th>
+                        <th>Fecha Inicio</th>
+                        <th>Inquilino</th>
+                        <th>Monto Mensual</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var contrato in Model.ContratosInmueble)
+                    {
+                        <tr>
+                            <td>@contrato.IdContrato</td>
+                            <td>@contrato.FechaInicio.ToShortDateString()</td>
+                            <td>@contrato.InquilinoC.Nombre @contrato.InquilinoC.Apellido</td>
+                            <td>@contrato.MontoMensual</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>Este inmueble no tiene contratos registrados.</p>
+        }
+    </div>
+</div>

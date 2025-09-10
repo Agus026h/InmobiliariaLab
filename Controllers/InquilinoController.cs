@@ -146,17 +146,24 @@ namespace devs.Controllers
         [HttpGet]
         public ActionResult Detalles(int id)
         {
-    
-         var inquilino = _repositorio.buscarId(id);
-    
-    
-         var contratos = _repositorioContrato.ObtenerContratosPorInquilino(id);
-    
-    
-         inquilino.ContratosInquilino = contratos;
-    
-          return View(inquilino);
+            try {
+                var inquilino = _repositorio.buscarId(id);
+
+                var contratos = _repositorioContrato.ObtenerContratosPorInquilino(id);
+
+                inquilino.ContratosInquilino = contratos;
+
+                return View(inquilino);
+            }catch (Exception ex)
+            {
+
+                TempData["Message"] = " Error al cargar detalles";
+                return RedirectToAction(nameof(Index));
+            }
+
+
         }
+
        
 
 

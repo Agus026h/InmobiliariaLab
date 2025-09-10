@@ -32,6 +32,7 @@ public class Inmueble
     public TipoInmueble Tipo { get; set; }
 
     public Propietario? Duenio { get; set; }
+    public IList<Contrato>? ContratosInmueble { get; set; }
 
     public string? Portada { get; set; }
 

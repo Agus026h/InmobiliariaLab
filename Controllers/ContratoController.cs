@@ -70,16 +70,26 @@ namespace devs.Controllers
         [HttpPost]
         public ActionResult Modificar(Contrato c)
         {
-            ViewBag.Inmuebles = _repositorioInmueble.ObtenerTodos();
-            ViewBag.Inquilinos = _repositorioInquilino.verTodos();
-            if (ModelState.IsValid)
+            try
             {
-                _repositorio.Modificar(c);
-                TempData["Message"] = "contrato modificado correctamente";
+                ViewBag.Inmuebles = _repositorioInmueble.ObtenerTodos();
+                ViewBag.Inquilinos = _repositorioInquilino.verTodos();
+                if (ModelState.IsValid)
+                {
+                    _repositorio.Modificar(c);
+                    TempData["Message"] = "contrato modificado correctamente";
+                    return RedirectToAction(nameof(Index));
+                }
+                TempData["Message"] = "No se pudo modificar el contrato";
+                return View(c);
+                
+            }
+            catch (Exception ex)
+            {
+
+                TempData["Message"] = " Error Modificar Contrato";
                 return RedirectToAction(nameof(Index));
             }
-            TempData["Message"] = "No se pudo modificar el contrato";
-            return View(c);
 
         }
 
@@ -101,8 +111,21 @@ namespace devs.Controllers
             return RedirectToAction(nameof(Index));
 
         }
-        
-        
+
+        public ActionResult Detalles(int id)
+        {
+
+            var contrato = _repositorio.BuscarId(id);
+
+            if (contrato == null)
+            {
+                TempData["Message"] = "No se encontro el contrato.";
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(contrato);
+        }
+    
 
 
     }
