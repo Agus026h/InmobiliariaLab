@@ -6,6 +6,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<RepositorioPropietario>();
 builder.Services.AddScoped<RepositorioInquilino>();
 builder.Services.AddScoped<RepositorioInmueble>();
+builder.Services.AddScoped<RepositorioContrato>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

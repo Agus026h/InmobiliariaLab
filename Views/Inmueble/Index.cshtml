@@ -65,9 +65,9 @@
                 
                 <td>
                     <a asp-action="Modificar" asp-route-id="@item.IdInmueble">Editar</a> |
-                    <!-- 
+                    
                     <a asp-action="Detalles" asp-route-id="@item.IdInmueble">Detalles</a> |
-                    -->
+                    
 
                     <form asp-action="Borrar" asp-route-id="@item.IdInmueble" method="post"
                      onsubmit="return confirm('Seguro que desea borrar este inmueble?');"

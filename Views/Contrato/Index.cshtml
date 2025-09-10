@@ -1,0 +1,76 @@
+﻿@model IEnumerable<devs.Models.Contrato>
+
+@{
+    ViewData["Title"] = "Contrato";
+}
+
+<h1>Listado de Contratos</h1>
+
+<p>
+    <a asp-action="Crear">Crear Nuevo Contrato</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdContrato)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaInicio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaFinOriginal)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Estado)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdInquilino)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdInmueble)
+            </th>
+            <th> 
+              
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IdContrato)
+                </td>
+                <td>
+                    @item.FechaInicio.ToShortDateString()
+                </td>
+                <td>
+                    @(item.FechaFinOriginal.HasValue ? item.FechaFinOriginal.Value.ToShortDateString() : "Sin Definir")
+                </td>
+                <td>
+                    @(item.Estado ? "activo" : "Inactivo")
+                </td>
+                <td>
+                    @item.InquilinoC.ToString()
+                </td>
+                <td>
+                    
+                    @item.InmuebleC.ToString()
+                </td>
+                <td>
+                    <a asp-action="Modificar" asp-route-id="@item.IdContrato">Editar</a> |
+                    
+                    <a asp-action="Detalles" asp-route-id="@item.IdContrato">Detalles</a> |
+
+                    <form asp-action="Borrar" asp-route-id="@item.IdContrato" method="post"
+                     onsubmit="return confirm('Seguro que desea borrar este Inquilino?');"
+                     style="display:inline;">
+                      <button type="submit" class="btn btn-link p-0">Borrar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

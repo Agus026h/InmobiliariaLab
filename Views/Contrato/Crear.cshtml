@@ -1,0 +1,85 @@
+@using Google.Protobuf.WellKnownTypes
+@model devs.Models.Contrato
+
+@{
+    ViewData["Title"] = "Crear";
+    var listaInquilinos = (IList<Inquilino>)ViewBag.Inquilinos;
+    var listaInmuebles = (IList<Inmueble>)ViewBag.Inmuebles;
+}
+
+<h4>Nuevo Propietario</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        
+     
+        <form asp-action = "Crear" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+           
+
+            <div class="form-group">
+                <label asp-for="FechaInicio" class="control-label"></label>
+                <input type= "date" asp-for="FechaInicio" class="form-control" />
+                <span asp-validation-for="FechaInicio" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FechaFinOriginal" class="control-label"></label>
+                <input type= "date" asp-for="FechaFinOriginal" class="form-control" />
+                <span asp-validation-for="FechaFinOriginal" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="MontoMensual" class="control-label"></label>
+                <input asp-for="MontoMensual" class="form-control" />
+                <span asp-validation-for="MontoMensual" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Estado" class="control-label"></label>
+                <select asp-for="Estado" class="control-label">
+                   <option value="true">Activo</option>
+                   <option value="false">Inactivo</option>
+
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdInmueble" class="control-label">Inmueble</label>
+                 <select class="form-control form-select" name="IdInmueble">
+                    @foreach(var Item in listaInmuebles)
+                    {
+                     <option value="@Item.IdInmueble"> @(Item.ToString())</option>
+
+                    }
+
+
+                </select>
+                <span asp-validation-for="IdInmueble" class="text-danger"></span>
+
+            </div>
+
+            <div class="form-group">
+				<label asp-for="IdInquilino" class="control-label ">Inquilino</label>
+				<select class="form-control form-select" name="IdInquilino">
+					@foreach (var item in listaInquilinos)
+					{
+						<option value="@item.IdInquilino">@(item.ToString())</option>
+					}
+				</select>
+				<span asp-validation-for="IdInquilino" class="text-danger"></span>
+			</div>
+            <div class="form-group">
+                <button type="submit"  class="btn btn-primary ">Crear</button>
+                
+            </div>
+        </form>
+    </div>
+</div>
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Mensaje
+    </div>
+}
+
+
+
