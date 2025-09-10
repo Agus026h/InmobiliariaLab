@@ -54,7 +54,7 @@ public class RepositorioPropietario : Conexion
 			String sql = @"Select
 			IdPropietario, nombre, apellido, dni, email, telefono
 			From Propietario
-			WHERE estado = 1
+			
 			";
 
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -109,7 +109,7 @@ public class RepositorioPropietario : Conexion
 
 				res = command.ExecuteNonQuery();
 
-				
+
 				connection.Close();
 			}
 		}
@@ -128,15 +128,17 @@ public class RepositorioPropietario : Conexion
 						   apellido = @apellido,
 						   dni = @dni,
 						   telefono = @telefono,
+						   estado = @estado,
 						   email = @email
 						   WHERE idPropietario = @idPropietario";
-			
+
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
 				command.CommandType = CommandType.Text;
 				command.Parameters.AddWithValue("@idPropietario", p.IdPropietario);
 				command.Parameters.AddWithValue("@nombre", p.Nombre);
 				command.Parameters.AddWithValue("@apellido", p.Apellido);
+				command.Parameters.AddWithValue("@estado", p.Estado);
 				command.Parameters.AddWithValue("@dni", p.Dni);
 				command.Parameters.AddWithValue("@email", p.Email);
 				command.Parameters.AddWithValue("@telefono", p.Telefono);
@@ -153,42 +155,61 @@ public class RepositorioPropietario : Conexion
 		}
 
 
-	 }
+	}
 
 	public Propietario buscarId(int id)
 	{
 		Propietario p = null;
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
-         string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email 
+			string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Estado 
 					FROM Propietario
 					WHERE IdPropietario = @idPropietario";
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
 				command.Parameters.AddWithValue("@idPropietario", id);
-					command.CommandType = CommandType.Text;
-					connection.Open();
-					var reader = command.ExecuteReader();
-					if (reader.Read())
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+				if (reader.Read())
+				{
+					p = new Propietario
 					{
-						p = new Propietario
-						{
-							IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
-							Nombre = reader.GetString("Nombre"),
-							Apellido = reader.GetString("Apellido"),
-							Dni = reader.GetString("Dni"),
-							Telefono = reader.GetString("Telefono"),
-							Email = reader.GetString("Email"),
-							
-						};
-					}
-					connection.Close();
+						IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
+						Nombre = reader.GetString("Nombre"),
+						Apellido = reader.GetString("Apellido"),
+						Dni = reader.GetString("Dni"),
+						Estado =reader.GetBoolean("Estado"),
+						Telefono = reader.GetString("Telefono"),
+						Email = reader.GetString("Email"),
+
+					};
 				}
+				connection.Close();
 			}
-			return p;
-
-
 		}
+		return p;
+
+
+	}
+		public int BajaReal(int id)
+    {
+        int res = -1;
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            string sql = @"Delete propietario 
+                           WHERE idPropietario = @idPropietario";
+
+            using (MySqlCommand command = new MySqlCommand(sql, connection))
+            {
+                command.CommandType = CommandType.Text;
+                command.Parameters.AddWithValue("@idPropietario", id);
+                connection.Open();
+                res = command.ExecuteNonQuery();
+            }
+        }
+        return res;
+    }
 
 
 	}

@@ -59,9 +59,9 @@
                 
                 <td>
                     <a asp-action="Editar" asp-route-id="@item.IdPropietario">Editar</a> |
-                    <!-- 
+                    
                     <a asp-action="Detalles" asp-route-id="@item.IdPropietario">Detalles</a> |
-                    -->
+                    
 
                     <form asp-action="Borrar" asp-route-id="@item.IdPropietario" method="post"
                      onsubmit="return confirm('Seguro que desea borrar este propietario?');"

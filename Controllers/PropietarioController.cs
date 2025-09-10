@@ -136,6 +136,23 @@ namespace devs.Controllers
 
         }
 
+        public ActionResult Detalles(int id,[FromServices] RepositorioInmueble repoInmueble)
+        {
+    
+        var propietario = _repositorio.buscarId(id);
+
+    
+           if (propietario == null)
+           {
+             TempData["Message"] = "No se encontro al propietario.";
+             return RedirectToAction(nameof(Index));
+           }
+         propietario.InmueblesPropietario = repoInmueble.ObtenerPorPropietario(id);
+
+         return View(propietario);
+        }
+
+
     }
 
 }
