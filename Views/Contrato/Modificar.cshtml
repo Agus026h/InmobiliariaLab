@@ -56,7 +56,7 @@
                  <select class="form-control form-select" name="IdInmueble">
                     @foreach(var Item in listaInmuebles)
                     {
-                     <option value="@Item.IdInmueble"> @(Item.ToString())</option>
+                      <option selected="@(Item.IdInmueble == Model.IdInmueble)" value="@Item.IdInmueble"> @(Item.ToString())</option>
 
                     }
 
@@ -71,7 +71,7 @@
 				<select class="form-control form-select" name="IdInquilino">
 					@foreach (var item in listaInquilinos)
 					{
-						<option value="@item.IdInquilino">@(item.ToString())</option>
+						<option selected ="@(item.IdInquilino == Model.IdInquilino)" value="@item.IdInquilino">@(item.ToString())</option>
 					}
 				</select>
 				<span asp-validation-for="IdInquilino" class="text-danger"></span>
