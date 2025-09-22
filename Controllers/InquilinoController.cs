@@ -14,25 +14,47 @@ namespace devs.Controllers
         }
 
         // GET: InquilinoController
+        
+        // public ActionResult Index(bool? mostrarInactivos)
+        // {
+        //     try
+        //     {
+        //         IList<Inquilino> lista;
 
-        public ActionResult Index(bool? mostrarInactivos)
+        //         if (mostrarInactivos.GetValueOrDefault(false))
+        //         {
+
+        //             lista = _repositorio.verTodos();
+        //         }
+        //         else
+        //         {
+
+        //             lista = _repositorio.verActivos();
+        //         }
+
+        //         ViewBag.MostrarInactivos = mostrarInactivos.GetValueOrDefault(false);
+        //         return View(lista);
+        //     }
+        //     catch (Exception ex)
+        //     {
+        //         TempData["Message"] = "Error al cargar los inquilinos.";
+        //         return View(new List<Inquilino>());
+        //     }
+        // }   
+
+        public ActionResult Index(int pagina = 1)
         {
             try
             {
-                IList<Inquilino> lista;
 
-                if (mostrarInactivos.GetValueOrDefault(false))
-                {
 
-                    lista = _repositorio.verTodos();
-                }
-                else
-                {
+                var tamanio = 5;
+                var lista = _repositorio.verTodosPaginado(Math.Max(pagina, 1), tamanio);
+                ViewBag.Pagina = pagina;
+                var total = _repositorio.CantidadInq();
 
-                    lista = _repositorio.verActivos();
-                }
+                ViewBag.TotalPaginas = total % tamanio == 0 ? total / tamanio : (total / tamanio) + 1;
 
-                ViewBag.MostrarInactivos = mostrarInactivos.GetValueOrDefault(false);
                 return View(lista);
             }
             catch (Exception ex)
@@ -42,10 +64,11 @@ namespace devs.Controllers
             }
         }
 
+
+
         public ActionResult Crear()
         {
             return View();
-
 
         }
 

@@ -130,6 +130,75 @@ public class RepositorioInquilino : Conexion
 
 	}
 
+	public IList<Inquilino> verTodosPaginado(int paginaNro = 1, int paginaTam = 10)
+	{
+		IList<Inquilino> listaI = new List<Inquilino>();
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			String sql = @$"Select
+			idInquilino, nombre, apellido, dni, email, telefono
+			From inquilino
+			LIMIT {paginaTam} OFFSET {(paginaNro - 1) * paginaTam} 
+			";
+
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+				while (reader.Read())
+				{
+					Inquilino inq = new Inquilino
+					{
+						IdInquilino = reader.GetInt32(nameof(Inquilino.IdInquilino)),
+						Nombre = reader.GetString("Nombre"),
+						Apellido = reader.GetString("Apellido"),
+						Dni = reader.GetString("Dni"),
+						Telefono = reader.GetString("Telefono"),
+						Email = reader.GetString("Email"),
+
+
+
+					};
+					listaI.Add(inq);
+
+				}
+				connection.Close();
+			}
+			return listaI;
+		}
+
+	}
+
+	public int CantidadInq()
+	{
+		int res = 0;
+
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"SELECT COUNT(IdInquilino)
+			               FROM inquilino";
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+
+				if (reader.Read())
+				{
+					res = reader.GetInt32(0);
+
+				}
+				connection.Close();
+			}
+
+		}
+
+		return res;
+
+	}
+
 	public int Baja(int id)
 	{
 		int res = -1;
