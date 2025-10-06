@@ -192,24 +192,67 @@ public class RepositorioPropietario : Conexion
 
 
 	}
-		public int BajaReal(int id)
-    {
-        int res = -1;
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            string sql = @"Delete propietario 
+
+     
+	public IList<Propietario> buscarPorNombre(string nombre)
+	{
+		List<Propietario> res = new List<Propietario>();
+		Propietario? p = null;
+		nombre = "%" + nombre + "%";
+
+		using (var connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email, Estado 
+					FROM Propietario
+					WHERE nombre like @nombre OR apellido = @nombre";
+			using (var command = new MySqlCommand(sql, connection))
+			{
+				command.Parameters.AddWithValue("@nombre", nombre);
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+				while (reader.Read()) {
+					p = new Propietario
+					{
+						IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
+						Nombre = reader.GetString("Nombre"),
+						Apellido = reader.GetString("Apellido"),
+						Dni = reader.GetString("Dni"),
+						Telefono = reader.GetString("Telefono"),
+						Email = reader.GetString("Email"),
+						//Clave = reader.GetString("Clave"),
+					};
+					res.Add(p);
+				}
+				connection.Close();
+			}
+			return res;
+		}
+	}
+
+
+
+
+
+
+	public int BajaReal(int id)
+	{
+		int res = -1;
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"Delete propietario 
                            WHERE idPropietario = @idPropietario";
 
-            using (MySqlCommand command = new MySqlCommand(sql, connection))
-            {
-                command.CommandType = CommandType.Text;
-                command.Parameters.AddWithValue("@idPropietario", id);
-                connection.Open();
-                res = command.ExecuteNonQuery();
-            }
-        }
-        return res;
-    }
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.CommandType = CommandType.Text;
+				command.Parameters.AddWithValue("@idPropietario", id);
+				connection.Open();
+				res = command.ExecuteNonQuery();
+			}
+		}
+		return res;
+	}
 
 
 	}

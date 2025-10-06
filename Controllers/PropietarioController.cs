@@ -136,8 +136,21 @@ namespace devs.Controllers
             
 
         }
+        [Route("[controller]/Buscar/{q}", Name = "Buscar")]
+        public IActionResult Buscar(string q)
+        {
+            try
+            {
+                var res = _repositorio.buscarPorNombre(q);
+                return Json(new { Datos = res });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = ex.Message });
+            }
+        }
 
-        public ActionResult Detalles(int id,[FromServices] RepositorioInmueble repoInmueble)
+        public ActionResult Detalles(int id, [FromServices] RepositorioInmueble repoInmueble)
         {
             try
             {
@@ -152,7 +165,8 @@ namespace devs.Controllers
                 propietario.InmueblesPropietario = repoInmueble.ObtenerPorPropietario(id);
 
                 return View(propietario);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
 
                 TempData["Message"] = " Error al cargar detalles";

@@ -68,7 +68,7 @@ namespace devs.Controllers
             try
             {
 
-                ViewBag.Propietarios = _repositorioP.verTodos();
+                //ViewBag.Propietarios = _repositorioP.verTodos();
                 var inmueble = _repositorio.BuscarPorId(id);
                 if (inmueble == null)
                 {
@@ -92,7 +92,7 @@ namespace devs.Controllers
         {
             try
             {
-                ViewBag.Propietarios = _repositorioP.verTodos();
+                //ViewBag.Propietarios = _repositorioP.verTodos();
                 if (ModelState.IsValid)
                 {
 
