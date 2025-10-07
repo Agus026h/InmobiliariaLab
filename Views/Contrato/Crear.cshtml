@@ -41,7 +41,22 @@
 
                 </select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
+
+                <div class="form-group">
+             <label asp-for="IdInmueble" class="control-label">Inmueble</label>
+    
+              <select id="IdInmueble" class="form-control" name="IdInmueble"></select>
+              <span asp-validation-for="IdInmueble" class="text-danger"></span>
+             </div>
+
+             <div class="form-group">
+             <label asp-for="IdInquilino" class="control-label ">Inquilino</label>
+    
+             <select id="IdInquilino" class="form-control" name="IdInquilino"></select>
+             <span asp-validation-for="IdInquilino" class="text-danger"></span>
             </div>
+            
+            @* </div>
             <div class="form-group">
                 <label asp-for="IdInmueble" class="control-label">Inmueble</label>
                  <select class="form-control form-select" name="IdInmueble">
@@ -66,7 +81,7 @@
 					}
 				</select>
 				<span asp-validation-for="IdInquilino" class="text-danger"></span>
-			</div>
+			</div> *@
             <div class="form-group">
                 <button type="submit"  class="btn btn-primary ">Crear</button>
                 
@@ -81,5 +96,69 @@
     </div>
 }
 
+@section Scripts {
+    <script type ="text/javascript">
+    $(document).ready(function() {
+        
+    
+        $('#IdInmueble').select2({
+            language : "es",
+            theme: 'bootstrap',
+            placeholder: "Buscar inmueble por direccion..",
+            minimumInputLength: 3, 
+            maximumInputLength: 50,
+            ajax: {
+                delay: 250,
+                dataType: "json",
+                cache: true,
+                url: function(params){
+                    let q = params.term ? encodeURIComponent(params.term) : "";
+                  
+                    return `/Inmueble/Buscar/${q}`; 
+                },
+                processResults: function (res){
+                    return {
+                       
+                        results: res.results.map(i => ({
+                            id: i.idInmueble, 
+                            text: `${i.direccion} (${i.uso} - $${i.precio})` 
+                        }))
+                    };
+                }
+            }
+        });
 
+
+        $('#IdInquilino').select2({
+            language : "es",
+            theme: 'bootstrap',
+            placeholder: "Buscar inquilino por Nombre..",
+            minimumInputLength: 2,
+            maximumInputLength: 50,
+            ajax: {
+                delay: 250,
+                dataType: "json",
+                cache: true,
+                url: function(params){
+                    let q = params.term ? encodeURIComponent(params.term) : "";
+                   
+                    return `/Inquilino/Buscar/${q}`; 
+                },
+                processResults: function (res){
+                    return {
+                        
+                        results: res.datos.map(p => ({
+                            id: p.idInquilino, 
+                            text: `${p.nombre} ${p.apellido} (${p.dni})` 
+                        }))
+                    };
+                }
+            }
+        });
+
+
+});
+
+    </script>
+}
 

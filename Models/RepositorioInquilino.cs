@@ -129,17 +129,17 @@ public class RepositorioInquilino : Conexion
 		}
 
 	}
-    //metodo con paginado y filtros integrados
+	//metodo con paginado y filtros integrados
 	public (IList<Inquilino> Lista, int totalRegistro) verTodosPaginado(int paginaNro = 1, int paginaTam = 10, string dni = null, bool? estado = null)
 	{
 		IList<Inquilino> listaI = new List<Inquilino>();
 		int totalRegistro = 0;
 		string filtro = "";
 
-			if (!string.IsNullOrEmpty(dni))
-			{
-				filtro += $" WHERE dni LIKE '%{dni}%'";
-			}
+		if (!string.IsNullOrEmpty(dni))
+		{
+			filtro += $" WHERE dni LIKE '%{dni}%'";
+		}
 		if (estado.HasValue)
 		{
 			string clausula = filtro.Length > 0 ? " AND " : " WHERE ";
@@ -150,12 +150,12 @@ public class RepositorioInquilino : Conexion
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
 			connection.Open();
-            string contador = $"SELECT COUNT(*) FROM inquilino {filtro}";
+			string contador = $"SELECT COUNT(*) FROM inquilino {filtro}";
 
 			using (var countCommand = new MySqlCommand(contador, connection))
 			{
 				countCommand.CommandType = CommandType.Text;
-				
+
 				totalRegistro = Convert.ToInt32(countCommand.ExecuteScalar());
 
 			}
@@ -172,8 +172,8 @@ public class RepositorioInquilino : Conexion
 			{
 
 				command.CommandType = CommandType.Text;
-				
-				
+
+
 
 				var reader = command.ExecuteReader();
 				while (reader.Read())
@@ -186,7 +186,7 @@ public class RepositorioInquilino : Conexion
 						Dni = reader.GetString("Dni"),
 						Telefono = reader.GetString("Telefono"),
 						Email = reader.GetString("Email"),
-                        Estado = reader.GetBoolean("Estado")
+						Estado = reader.GetBoolean("Estado")
 
 
 					};
@@ -331,25 +331,62 @@ public class RepositorioInquilino : Conexion
 
 
 	}
-		
-		public int BajaReal(int id)
-    {
-        int res = -1;
-        using (MySqlConnection connection = new MySqlConnection(connectionString))
-        {
-            string sql = @"Delete inquilino
+
+	public int BajaReal(int id)
+	{
+		int res = -1;
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"Delete inquilino
                            WHERE idInquilino = @idInquilino";
 
-            using (MySqlCommand command = new MySqlCommand(sql, connection))
-            {
-                command.CommandType = CommandType.Text;
-                command.Parameters.AddWithValue("@idInquilino", id);
-                connection.Open();
-                res = command.ExecuteNonQuery();
-            }
-        }
-        return res;
-    }
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.CommandType = CommandType.Text;
+				command.Parameters.AddWithValue("@idInquilino", id);
+				connection.Open();
+				res = command.ExecuteNonQuery();
+			}
+		}
+		return res;
+	}
+	
+
+	public IList<Inquilino> buscarPorNombre(string nombre)
+	{
+		List<Inquilino> res = new List<Inquilino>();
+		Inquilino? inq = null;
+		nombre = "%" + nombre + "%";
+
+		using (var connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"SELECT IdInquilino, Nombre, Apellido, Dni, Telefono, Email, Estado 
+					FROM Inquilino
+					WHERE nombre like @nombre OR apellido = @nombre";
+			using (var command = new MySqlCommand(sql, connection))
+			{
+				command.Parameters.AddWithValue("@nombre", nombre);
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				var reader = command.ExecuteReader();
+				while (reader.Read()) {
+					inq = new Inquilino
+					{
+						IdInquilino = reader.GetInt32(nameof(Inquilino.IdInquilino)),
+						Nombre = reader.GetString("Nombre"),
+						Apellido = reader.GetString("Apellido"),
+						Dni = reader.GetString("Dni"),
+						Telefono = reader.GetString("Telefono"),
+						Email = reader.GetString("Email"),
+						//Clave = reader.GetString("Clave"),
+					};
+					res.Add(inq);
+				}
+				connection.Close();
+			}
+			return res;
+		}
+	}
 
 
 	}

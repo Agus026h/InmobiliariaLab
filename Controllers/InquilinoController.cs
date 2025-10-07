@@ -176,7 +176,19 @@ namespace devs.Controllers
 
         }
 
-       
+       [Route("[controller]/Buscar/{q}")]
+        public IActionResult Buscar(string q)
+        {
+            try
+            {
+                var res = _repositorio.buscarPorNombre(q);
+                return Json(new { datos = res });
+            }
+            catch(Exception ex)
+            {
+                return Json(new { Error = ex.Message });
+            }
+        }
 
 
 
