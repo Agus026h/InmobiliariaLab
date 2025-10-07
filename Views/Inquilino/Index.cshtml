@@ -2,8 +2,11 @@
 
 @{
     ViewData["Title"] = "Inquilino";
-    var Pagina = ViewBag.Pagina ?? 1;
-    var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+    //var Pagina = ViewBag.Pagina ?? 1;
+    //var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+    var DniFiltro = ViewBag.DniFiltro;
+    var EstadoFiltro = ViewBag.EstadoFiltro;
+    
 }
 
 <h1>Listado de Inquilinos</h1>
@@ -12,120 +15,76 @@
     <a asp-action="Crear">Crear Nuevo Inquilino</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdInquilino)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Apellido)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Dni)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefono)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th> 
-               @* <form id="filtroForm" asp-action="Index" method="get">
-                 <div class="form-group mb-3">
-                  <label>
-                    
-                    <input type="checkbox" name="mostrarInactivos" value="true" 
-                    @(ViewBag.MostrarInactivos ? "checked" : "") 
-                     onchange="this.form.submit();" />Mostrar inactivos</label>
-                     </div>
-               </form> *@
 
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdInquilino)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Nombre)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Apellido)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Dni)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Telefono)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                <td>
-                    <a asp-action="Modificar" asp-route-id="@item.IdInquilino">Editar</a> |
-                    
-                    <a asp-action="Detalles" asp-route-id="@item.IdInquilino">Detalles</a> |
+<form id="filtroForm">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="dniFiltro" class="form-label">Filtrar por DNI:</label>
+            <input type="text" class="form-control" id="dniFiltro" name="dni" 
+                   value="@DniFiltro" placeholder="Ingresa un DNI">
+        </div>
+        <div class="col-md-4">
+            <label for="estadoFiltro" class="form-label">Filtrar por Estado:</label>
+            <select class="form-select" id="estadoFiltro" name="estado">
+                <option value="">Todos</option>
+                <option selected ="@(EstadoFiltro == "true")" value="true" >Activo</option>
+                <option selected = "@(EstadoFiltro == "false")" value="false" >Inactivo</option>
+            </select>
+        </div>
+        <div class="col-md-4 d-flex align-items-end">
+             <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
+</form>
 
-                    <form asp-action="Borrar" asp-route-id="@item.IdInquilino" method="post"
-                     onsubmit="return confirm('Seguro que desea borrar este Inquilino?');"
-                     style="display:inline;">
-                      <button type="submit" class="btn btn-link p-0">Borrar</button>
-                    </form>
-                </td>
-            </tr>
+<hr/>
+
+<div id="tablaInquilinos">
+    @await Html.PartialAsync("_TablaInquilinosPartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function(){
+        
+        function cargarTabla(url){
+            $("#tablaInquilinos").html('<p class="text-center">Cargando inquilinos...</p>');
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function(data){
+                    $("#tablaInquilinos").html(data);
+                    
+                    history.pushState(null, '', url); 
+                },
+                error: function(xhr, status, error){
+                    $("#tablaInquilinos").html('<p class="text-danger text-center">Error al cargar los datos: '+ error+ '</p>');
+                }
+            });
         }
-    </tbody>
-</table>
+
+        $(document).on("click", "#tablaInquilinos a.page-link", function(e){
+            e.preventDefault();
+
+            var url = $(this).attr("href");
+            
+            cargarTabla(url);
+        });
 
 
-<nav aria-label="Page navigation">
-	<ul class="pagination">
-		
-		@if (Pagina > 1)
-		{
-			<li class="page-item">
-				<a class="page-link" href="~/Inquilino/Index?pagina=@(Pagina - 1)" aria-label="Anterior">
-					<i class="fa-solid fa-angles-left"> </i>
-				</a>
-			</li>
-		}
-		else
-		{
-			<li class="page-item disabled">
-				<span class="page-link"><i class="fa-solid fa-angles-left"></i></span>
-			</li>
-		}
-
-	
-		@for (int i = 1; i <= TotalPaginas; i++)
-		{
-			<li class="page-item @(i == Pagina ? "active" : "")">
-				<a class="page-link" href="~/Inquilino/Index?pagina=@i">@i</a>
-			</li>
-		}
-		
-
-		@if (Pagina < TotalPaginas)
-		{
-			<li class="page-item">
-				<a class="page-link" href="~/Inquilino/Index?pagina=@(Pagina + 1)" aria-label="Siguiente">
-					<i class="fa-solid fa-angles-right"></i>
-				</a>
-			</li>
-		}
-		else
-		{
-			<li class="page-item disabled">
-				<span class="page-link"><i class="fa-solid fa-angles-right" ></i></span>
-			</li>
-		}
-	</ul>
-</nav>
+        $("#filtroForm").on("submit", function (e) {
+            e.preventDefault(); 
+            
+         
+            var dni = $("#dniFiltro").val() || "";
+            var estado = $("#estadoFiltro").val() || "";
+            
+          
+            var url = '@Url.Action("Index", "Inquilino")';
+            url += `?pagina=1&dni=${dni}&estado=${estado}`;
+            
+            cargarTabla(url);
+        });
+    });
+    </script>
+}

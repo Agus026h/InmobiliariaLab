@@ -13,53 +13,42 @@ namespace devs.Controllers
             _repositorioContrato = repositorioContrato;
         }
 
-        // GET: InquilinoController
         
-        // public ActionResult Index(bool? mostrarInactivos)
-        // {
-        //     try
-        //     {
-        //         IList<Inquilino> lista;
 
-        //         if (mostrarInactivos.GetValueOrDefault(false))
-        //         {
-
-        //             lista = _repositorio.verTodos();
-        //         }
-        //         else
-        //         {
-
-        //             lista = _repositorio.verActivos();
-        //         }
-
-        //         ViewBag.MostrarInactivos = mostrarInactivos.GetValueOrDefault(false);
-        //         return View(lista);
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         TempData["Message"] = "Error al cargar los inquilinos.";
-        //         return View(new List<Inquilino>());
-        //     }
-        // }   
-
-        public ActionResult Index(int pagina = 1)
+        public ActionResult Index(int pagina = 1, string dni = null, string estado = null)
         {
             try
             {
 
 
                 var tamanio = 5;
-                var lista = _repositorio.verTodosPaginado(Math.Max(pagina, 1), tamanio);
-                ViewBag.Pagina = pagina;
-                var total = _repositorio.CantidadInq();
+                pagina = (Math.Max(pagina, 1));
 
+                bool? estadoFiltro = null;
+                if (!string.IsNullOrEmpty(estado) && bool.TryParse(estado, out bool parsedEstado))
+                {
+                 estadoFiltro = parsedEstado;
+                }
+                var (lista, total) = _repositorio.verTodosPaginado(pagina, tamanio, dni, estadoFiltro);
+                ViewBag.Pagina = pagina;
                 ViewBag.TotalPaginas = total % tamanio == 0 ? total / tamanio : (total / tamanio) + 1;
 
+                ViewBag.DniFiltro = dni;
+                ViewBag.EstadoFiltro = estado;
+
+                //si es ajax 
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    //devuelve vista parcial
+                    return PartialView("_TablaInquilinosPartial", lista);
+
+                }
+ 
                 return View(lista);
             }
             catch (Exception ex)
             {
-                TempData["Message"] = "Error al cargar los inquilinos.";
+                TempData["Message"] = "Error al cargar los inquilinos." + ex;
                 return View(new List<Inquilino>());
             }
         }

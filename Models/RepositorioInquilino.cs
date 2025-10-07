@@ -129,23 +129,52 @@ public class RepositorioInquilino : Conexion
 		}
 
 	}
-
-	public IList<Inquilino> verTodosPaginado(int paginaNro = 1, int paginaTam = 10)
+    //metodo con paginado y filtros integrados
+	public (IList<Inquilino> Lista, int totalRegistro) verTodosPaginado(int paginaNro = 1, int paginaTam = 10, string dni = null, bool? estado = null)
 	{
 		IList<Inquilino> listaI = new List<Inquilino>();
+		int totalRegistro = 0;
+		string filtro = "";
+
+			if (!string.IsNullOrEmpty(dni))
+			{
+				filtro += $" WHERE dni LIKE '%{dni}%'";
+			}
+		if (estado.HasValue)
+		{
+			string clausula = filtro.Length > 0 ? " AND " : " WHERE ";
+			string estadoSql = estado.Value ? "1" : "0";
+			filtro += $"{clausula}  estado = {estadoSql}";
+		}
+
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
+			connection.Open();
+            string contador = $"SELECT COUNT(*) FROM inquilino {filtro}";
+
+			using (var countCommand = new MySqlCommand(contador, connection))
+			{
+				countCommand.CommandType = CommandType.Text;
+				
+				totalRegistro = Convert.ToInt32(countCommand.ExecuteScalar());
+
+			}
+
 			String sql = @$"Select
-			idInquilino, nombre, apellido, dni, email, telefono
+			idInquilino, nombre, apellido, dni, email, telefono, estado
 			From inquilino
-			LIMIT {paginaTam} OFFSET {(paginaNro - 1) * paginaTam} 
+			{filtro}
+			LIMIT {paginaTam} OFFSET {(paginaNro - 1) * paginaTam}  
 			";
+
 
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
 
 				command.CommandType = CommandType.Text;
-				connection.Open();
+				
+				
+
 				var reader = command.ExecuteReader();
 				while (reader.Read())
 				{
@@ -157,7 +186,7 @@ public class RepositorioInquilino : Conexion
 						Dni = reader.GetString("Dni"),
 						Telefono = reader.GetString("Telefono"),
 						Email = reader.GetString("Email"),
-
+                        Estado = reader.GetBoolean("Estado")
 
 
 					};
@@ -166,7 +195,7 @@ public class RepositorioInquilino : Conexion
 				}
 				connection.Close();
 			}
-			return listaI;
+			return (listaI, totalRegistro);
 		}
 
 	}
