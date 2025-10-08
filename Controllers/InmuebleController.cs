@@ -30,12 +30,50 @@ namespace devs.Controllers
             }
         }
         // GET: InmuebleController
-        public ActionResult Index()
+        public IActionResult Index(
+         int pagina = 1,
+         string direccion = null,
+         string uso = null,
+         string estado = null,
+         string nombrePropietario = null) 
         {
-            var lista = _repositorio.ObtenerTodos();
+            var tamanio = 5;
+            pagina = (Math.Max(pagina, 1));
+
+            
+            int? usoFiltro = null;
+            if (!string.IsNullOrEmpty(uso) && int.TryParse(uso, out int parsedUso)) usoFiltro = parsedUso;
+            int? estadoFiltro = null;
+            if (!string.IsNullOrEmpty(estado) && int.TryParse(estado, out int parsedEstado)) estadoFiltro = parsedEstado;
+
+            
+            var (lista, total) = _repositorio.verTodosPaginado(
+                pagina,
+                tamanio,
+                direccion,
+                usoFiltro,
+                estadoFiltro,
+                nombrePropietario); 
+
+            
+            ViewBag.Pagina = pagina;
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamanio);
+
+            ViewBag.DireccionFiltro = direccion;
+            ViewBag.UsoFiltro = uso;
+            ViewBag.EstadoFiltro = estado;
+            ViewBag.NombrePropietarioFiltro = nombrePropietario; 
+                                                               
+
+            // ver si es AJAX ---
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return PartialView("_TablaInmueblesPartial", lista);
+            }
 
             return View(lista);
         }
+
 
 
         public ActionResult Crear()

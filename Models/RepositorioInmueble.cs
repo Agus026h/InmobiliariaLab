@@ -342,7 +342,112 @@ public class RepositorioInmueble : Conexion
 		}
 		return res;
 	}
-		
+	
+	// paginado con filtros
+	public (IList<Inmueble> Lista, int totalRegistro) verTodosPaginado(
+		int paginaNro = 1, int paginaTam = 5,
+		string direccion = null, int? uso = null, int? estado = null, string nombrePropietario = null)
+	{
+		IList<Inmueble> listaI = new List<Inmueble>();
+		int totalRegistro = 0;
+		string filtro = "";
+		string whereClausula = "";
+
+
+
+        //probando otra forma de armar el filtro
+		Action<string> agregarFiltro = (condicion) =>
+		{
+			if (whereClausula.Length == 0)
+			{
+				whereClausula = " WHERE " + condicion;
+			}
+			else
+			{
+				whereClausula += " AND " + condicion;
+			}
+		};
+
+
+		if (!string.IsNullOrEmpty(direccion))
+		{
+
+			agregarFiltro($"i.Direccion LIKE '%{direccion}%'");
+		}
+		if (uso.HasValue)
+		{
+			agregarFiltro($"i.Uso = {uso.Value + 1}");
+		}
+		if (estado.HasValue)
+		{
+			agregarFiltro($"i.Estado = {estado.Value + 1}");
+		}
+		if (!string.IsNullOrEmpty(nombrePropietario))
+		{
+			agregarFiltro($"(p.Nombre LIKE '%{nombrePropietario}%' OR p.Apellido LIKE '%{nombrePropietario}%')");
+		}
+
+		filtro = whereClausula;
+
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			connection.Open();
+
+			
+			string contador = $"SELECT COUNT(*) FROM Inmueble i JOIN Propietario p ON i.IdPropietario = p.IdPropietario {filtro}";
+
+			using (var countCommand = new MySqlCommand(contador, connection))
+			{
+				countCommand.CommandType = CommandType.Text;
+				totalRegistro = Convert.ToInt32(countCommand.ExecuteScalar());
+			}
+
+			
+			String sql = @$"SELECT
+            i.IdInmueble, i.Direccion, i.Uso, i.Ambientes, i.Precio, i.IdPropietario, i.Estado, i.Portada, 
+            p.Nombre AS PropietarioNombre, p.Apellido AS PropietarioApellido
+            FROM Inmueble i 
+            JOIN Propietario p ON i.IdPropietario = p.IdPropietario
+            {filtro}
+            ORDER BY i.IdInmueble
+            LIMIT {paginaTam} OFFSET {(paginaNro - 1) * paginaTam}  
+        ";
+
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.CommandType = CommandType.Text;
+				var reader = command.ExecuteReader();
+
+				while (reader.Read())
+				{
+					Inmueble i = new Inmueble
+					{
+						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+						Direccion = reader.GetString(nameof(Inmueble.Direccion)),
+						
+						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
+						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+						 Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado)), true),
+						
+						Portada = reader.IsDBNull(reader.GetOrdinal(nameof(Inmueble.Portada))) ? null : reader.GetString(nameof(Inmueble.Portada)),
+
+						
+						Duenio = new Propietario
+						{
+							Nombre = reader.GetString("PropietarioNombre"),
+							Apellido = reader.GetString("PropietarioApellido")
+						}
+					};
+					listaI.Add(i);
+				}
+				connection.Close();
+			}
+			return (listaI, totalRegistro);
+		}
+	}
+
 
 }
 

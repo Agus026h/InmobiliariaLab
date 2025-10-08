@@ -1,0 +1,140 @@
+@model IEnumerable<devs.Models.Inmueble>
+
+@{
+    var Pagina = ViewBag.Pagina ?? 1;
+    var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+    
+    // Filtros 
+    var DireccionFiltro = ViewBag.DireccionFiltro;
+    var UsoFiltro = ViewBag.UsoFiltro;
+    var EstadoFiltro = ViewBag.EstadoFiltro;
+    var NombrePropietarioFiltro = ViewBag.NombrePropietarioFiltro; 
+    var aleatorio = new Random();
+
+    
+    var filtrosQuery = "";
+    if (!string.IsNullOrEmpty(DireccionFiltro))
+    {
+        filtrosQuery += $"&direccion={DireccionFiltro}"; 
+    }
+    if (!string.IsNullOrEmpty(UsoFiltro))
+    {
+        filtrosQuery += $"&uso={UsoFiltro}";
+    }
+    if (!string.IsNullOrEmpty(EstadoFiltro))
+    {
+        filtrosQuery += $"&estado={EstadoFiltro}";
+    }
+    
+    if (!string.IsNullOrEmpty(NombrePropietarioFiltro))
+    {
+        filtrosQuery += $"&nombrePropietario={NombrePropietarioFiltro}";
+    }
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.IdInmueble)</th>
+            <th>@Html.DisplayNameFor(model => model.Direccion)</th>
+            <th>@Html.DisplayNameFor(model => model.Uso)</th>
+            <th>@Html.DisplayNameFor(model => model.Ambientes)</th>
+            <th>@Html.DisplayNameFor(model => model.Precio)</th>
+            <th>@Html.DisplayNameFor(model => model.IdPropietario)</th>
+            <th>@Html.DisplayNameFor(model => model.Estado)</th>
+            <th>@Html.DisplayNameFor(model => model.Portada)</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.IdInmueble)</td>
+                <td>@Html.DisplayFor(modelItem => item.Direccion)</td>
+                <td>@Html.DisplayFor(modelItem => item.Uso)</td>
+                <td>@Html.DisplayFor(modelItem => item.Ambientes)</td>
+                <td>@Html.DisplayFor(modelItem => item.Precio)</td>
+                <th>@item.Duenio.ToString()</th> 
+                <td>@Html.DisplayFor(modelItem => item.Estado)</td>
+                <td>
+                    @if (!String.IsNullOrEmpty(item?.Portada))
+                    {
+                        var x = item.Portada + "?" + aleatorio.Next();
+                        <img width="32" src="@x" />
+                    }
+                    else
+                    {
+                        <span>Sin foto</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group" role ="group"> 
+                        <a class = "btn btn-primary" asp-action="Modificar" asp-route-id="@item.IdInmueble" title="Editar">
+                            <i class="fa-solid fa-pen"></i>
+                        </a>
+                        <a class="btn btn-secondary" asp-action="Detalles" asp-route-id="@item.IdInmueble" title="Detalles">
+                            <i class="fa-solid fa-eye"></i>
+                        </a> 
+                        <form asp-action="Borrar" asp-route-id="@item.IdInmueble" method="post"
+                             onsubmit="return confirm('Seguro que desea borrar este inmueble?');"
+                             style="display:inline;">
+                             <button type="submit" class="btn btn-danger" title = "Eliminar">
+                                <i class="fa-solid fa-trash"></i>
+                             </button>
+                        </form>
+                        <a class="btn btn-secondary" asp-action="Imagenes" asp-route-id="@item.IdInmueble" title="Ver imágenes">
+                            <i class="fa-solid fa-images"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        
+        
+        @if (Pagina > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="~/Inmueble/Index?pagina=@(Pagina - 1)@filtrosQuery" aria-label="Anterior">
+                    <i class="fa-solid fa-angles-left"> </i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fa-solid fa-angles-left"></i></span>
+            </li>
+        }
+
+       
+        @for (int i = 1; i <= TotalPaginas; i++)
+        {
+            <li class="page-item @(i == Pagina ? "active" : "")">
+                <a class="page-link" href="~/Inmueble/Index?pagina=@i@filtrosQuery">@i</a>
+            </li>
+        }
+        
+        
+        @if (Pagina < TotalPaginas)
+        {
+            <li class="page-item">
+                <a class="page-link" href="~/Inmueble/Index?pagina=@(Pagina + 1)@filtrosQuery" aria-label="Siguiente">
+                    <i class="fa-solid fa-angles-right"></i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fa-solid fa-angles-right" ></i></span>
+            </li>
+        }
+    </ul>
+</nav>

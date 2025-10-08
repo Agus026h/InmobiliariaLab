@@ -2,7 +2,16 @@
 
 @{
     ViewData["Title"] = "Inmuebles";
-    var aleatorio = new Random();
+    
+    var DireccionFiltro = ViewBag.DireccionFiltro;
+    var NombrePropietarioFiltro = ViewBag.NombrePropietarioFiltro;
+
+    var UsoFiltro = ViewBag.UsoFiltro as string; 
+    var EstadoFiltro = ViewBag.EstadoFiltro as string;
+    
+    
+    var usos = Enum.GetValues(typeof(devs.Models.UsoInmueble)).Cast<devs.Models.UsoInmueble>();
+    var estados = Enum.GetValues(typeof(devs.Models.EstadoInmueble)).Cast<devs.Models.EstadoInmueble>();
 }
 
 <h1>Listado de Inmuebles</h1>
@@ -11,101 +20,108 @@
     <a asp-action="Crear">Crear Nuevo Inmueble</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdInmueble)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Direccion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Uso)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ambientes)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Precio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdPropietario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-
-            <th>
-                @Html.DisplayNameFor(model => model.Portada)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdInmueble)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Direccion)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Uso)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Ambientes)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Precio)
-                </td>
-                <th>
-                    @item.Duenio.ToString()
-                </th>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Estado)
-                </td>
-                <td>
-					@if (!String.IsNullOrEmpty(item?.Portada))
-					{
-						var x = item.Portada + "?" + aleatorio.Next();
-						<img width="32" src="@x" />
-					}
-					else
-					{
-						<span>Sin foto</span>
-					}
-
-				</td>
-
-                <td>
-                    <div class="btn-group" role ="group"> 
-                    <a class = "btn btn-primary" asp-action="Modificar" asp-route-id="@item.IdInmueble" title="Editar">
-                      <i class="fa-solid fa-pen"></i>
-                    </a>
-                    
-                    <a class="btn btn-secundary"asp-action="Detalles" asp-route-id="@item.IdInmueble" title="detalles">
-                      <i class="fa-solid fa-eye"></i>
-                    </a> 
-                    
-
-                    <form asp-action="Borrar" asp-route-id="@item.IdInmueble" method="post"
-                     onsubmit="return confirm('Seguro que desea borrar este inmueble?');"
-                     style="display:inline;">
-                      <button type="submit" class="btn btn-danger" title = "eliminar">
-                       <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </form>
-
-                    <a class="btn btn-secondary" asp-action="Imagenes" asp-route-id="@item.IdInmueble" title="Ver imagenes">
-							<i class="fa-solid fa-images"></i>
-					</a>
-                    </div>
-                </td>
+<form id="filtroForm">
+    <div class="row mb-3">
+        
+        <div class="col-md-3">
+            <label for="direccionFiltro" class="form-label">Dirección:</label>
+            <input type="text" class="form-control" id="direccionFiltro" name="direccion" 
+                   value="@DireccionFiltro" placeholder="Buscar dirección">
+        </div>
+        
+        <div class="col-md-3">
+            <label for="usoFiltro" class="form-label">Uso:</label>
+            <select class="form-select" id="usoFiltro" name="uso">
+                <option value="">Todos</option>
+                @foreach (var uso in usos)
+                {
+                    <option 
+                        value="@((int)uso)" 
+                        selected ="@(UsoFiltro == ((int)uso).ToString())">
+                        @uso.ToString()
+                    </option>
+                }
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="estadoFiltro" class="form-label">Estado:</label>
+            <select class="form-select" id="estadoFiltro" name="estado">
+                <option value="">Todos</option>
+                @foreach (var estado in estados)
+                {
+                    <option 
+                        value="@((int)estado)" 
+                        selected ="@(EstadoFiltro == ((int)estado).ToString())"> 
+                        @estado.ToString()
+                    </option>
                 
-            </tr>
+                }
+            </select>
+        </div>
+        
+        <div class="col-md-3">
+            <label for="nombrePropietarioFiltro" class="form-label">Propietario (Nombre/Apellido):</label>
+            <input type="text" class="form-control" id="nombrePropietarioFiltro" name="nombrePropietario" 
+                   value="@NombrePropietarioFiltro" placeholder="Escriba nombre o apellido">
+        </div>
+        
+    </div>
+    
+    <div class="row mb-3">
+        <div class="col-md-12 text-end">
+             <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
+</form>
+
+<hr/>
+
+<div id="tablaInmuebles">
+    @await Html.PartialAsync("_TablaInmueblesPartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function(){
+        
+        function cargarTabla(url){
+            
+             $("#tablaInmuebles").html('<p class="text-center">Cargando inmuebles...</p>');
+            $.ajax({
+                url: url,
+                type: "GET",
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }, 
+                success: function(data){
+                    $("#tablaInmuebles").html(data);
+                    history.pushState(null, '', url); 
+                },
+                error: function(xhr, status, error){
+                    $("#tablaInmuebles").html('<p class="text-danger text-center">Error al cargar los datos: '+ error+ '</p>');
+                }
+            });
         }
-    </tbody>
-</table>
+
+        $(document).on("click", "#tablaInmuebles a.page-link", function(e){
+            e.preventDefault();
+            var url = $(this).attr("href");
+            cargarTabla(url);
+        });
+
+        $("#filtroForm").on("submit", function (e) {
+            e.preventDefault(); 
+            
+            var direccion = $("#direccionFiltro").val() || "";
+            var uso = $("#usoFiltro").val() || ""; 
+            var estado = $("#estadoFiltro").val() || ""; 
+            var nombrePropietario = $("#nombrePropietarioFiltro").val() || ""; 
+            
+            var url = '@Url.Action("Index", "Inmueble")';
+            //crear direccion url
+            url += `?pagina=1&direccion=${direccion}&uso=${uso}&estado=${estado}&nombrePropietario=${nombrePropietario}`; 
+            
+            cargarTabla(url);
+        });
+    });
+    </script>
+}
