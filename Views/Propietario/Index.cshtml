@@ -58,16 +58,25 @@
                 </td>
                 
                 <td>
-                    <a asp-action="Editar" asp-route-id="@item.IdPropietario">Editar</a> |
+                    <div class="btn-group" role ="group"> 
+                    <a class = "btn btn-primary" asp-action="Editar" asp-route-id="@item.IdPropietario" title="Editar">
+                      <i class="fa-solid fa-pen"></i>
+                    </a>
                     
-                    <a asp-action="Detalles" asp-route-id="@item.IdPropietario">Detalles</a> |
+                    
+                    <a class="btn btn-secundary"asp-action="Detalles" asp-route-id="@item.IdPropietario" title = "Detalles">
+                      <i class="fa-solid fa-eye"></i>
+                    </a> 
                     
 
                     <form asp-action="Borrar" asp-route-id="@item.IdPropietario" method="post"
                      onsubmit="return confirm('Seguro que desea borrar este propietario?');"
                      style="display:inline;">
-                      <button type="submit" class="btn btn-link p-0">Borrar</button>
+                      <button type="submit" class="btn btn-danger" title="Eliminar">
+                       <i class="fa-solid fa-trash"></i>
+                      </button>
                     </form>
+                    </div>
                 </td>
             </tr>
         }

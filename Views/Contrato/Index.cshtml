@@ -60,15 +60,23 @@
                     @item.InmuebleC.ToString()
                 </td>
                 <td>
-                    <a asp-action="Modificar" asp-route-id="@item.IdContrato">Editar</a> |
+                 <div class="btn-group" role ="group"> 
+                    <a class= "btn btn-primary" asp-action="Modificar" asp-route-id="@item.IdContrato" title="Editar">
+                       <i class="fa-solid fa-pen"></i>
+                    </a> 
                     
-                    <a asp-action="Detalles" asp-route-id="@item.IdContrato">Detalles</a> |
+                    <a class="btn btn-secundary" asp-action="Detalles" asp-route-id="@item.IdContrato" title="Detalles">
+                    <i class="fa-solid fa-eye"></i>
+                    </a> 
 
                     <form asp-action="Borrar" asp-route-id="@item.IdContrato" method="post"
                      onsubmit="return confirm('Seguro que desea borrar este Inquilino?');"
                      style="display:inline;">
-                      <button type="submit" class="btn btn-link p-0">Borrar</button>
+                      <button type="submit" class="btn btn-danger" title="Eliminar">
+                      <i class="fa-solid fa-trash"></i>
+                      </button>
                     </form>
+                    </div>
                 </td>
             </tr>
         }
