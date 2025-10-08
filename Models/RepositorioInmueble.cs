@@ -53,7 +53,7 @@ public class RepositorioInmueble : Conexion
 		IList<Inmueble> res = new List<Inmueble>();
 		using (var connection = new MySqlConnection(connectionString))
 		{
-			var sql = @"SELECT idInmueble, direccion, uso, ambientes, precio, latitud, longitud, i.estado,
+			var sql = @"SELECT idInmueble, direccion, uso, ambientes, precio, latitud, longitud, portada, i.estado,
 			p.idPropietario, p.nombre, p.apellido
 			FROM Inmueble i INNER JOIN propietario p ON i.idPropietario = p.idPropietario";
 
@@ -69,12 +69,13 @@ public class RepositorioInmueble : Conexion
 						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
 						Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value ? "" : reader.GetString(nameof(Inmueble.Direccion)),
 						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
-						//Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
+						Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
 						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
 						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
 						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado))),
 						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 						Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+						
 						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
 						Duenio = new Propietario
 						{
@@ -197,7 +198,7 @@ public class RepositorioInmueble : Conexion
 		using (MySqlConnection connection = new MySqlConnection(connectionString))
 		{
 			string sql = @$"
-					SELECT idInmueble, direccion, uso, ambientes, precio, latitud, longitud, i.estado, tipo,
+					SELECT idInmueble, direccion, uso, ambientes, precio, latitud, longitud, portada, i.estado, tipo,
 			        p.idPropietario, p.nombre, p.apellido, p.email
 			        FROM Inmueble i INNER JOIN propietario p ON i.idPropietario = p.idPropietario
 					WHERE idInmueble=@id";
@@ -217,6 +218,7 @@ public class RepositorioInmueble : Conexion
 						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
 						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
 						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+						Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
 						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado))),
 						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 						Tipo = (TipoInmueble)Enum.Parse(typeof(TipoInmueble), reader.GetString(nameof(Inmueble.Tipo))),
@@ -283,7 +285,7 @@ public class RepositorioInmueble : Conexion
 		return lista;
 	}
 
-public IList<Inmueble> buscarPorNombre(string direccion)
+	public IList<Inmueble> buscarPorNombre(string direccion)
 	{
 		List<Inmueble> res = new List<Inmueble>();
 		Inmueble? inm = null;
@@ -300,7 +302,8 @@ public IList<Inmueble> buscarPorNombre(string direccion)
 				command.CommandType = CommandType.Text;
 				connection.Open();
 				var reader = command.ExecuteReader();
-				while (reader.Read()) {
+				while (reader.Read())
+				{
 					inm = new Inmueble
 					{
 						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
@@ -316,6 +319,31 @@ public IList<Inmueble> buscarPorNombre(string direccion)
 			return res;
 		}
 	}
+
+
+	public int ModificarPortada(int id, string url)
+	{
+		int res = -1;
+		using (var connection = new MySqlConnection(connectionString))
+		{
+			string sql = @"
+					UPDATE Inmueble SET
+					Portada=@portada
+					WHERE idInmueble = @id";
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.Parameters.AddWithValue("@portada", String.IsNullOrEmpty(url) ? DBNull.Value : url);
+				command.Parameters.AddWithValue("@id", id);
+				command.CommandType = CommandType.Text;
+				connection.Open();
+				res = command.ExecuteNonQuery();
+				connection.Close();
+			}
+		}
+		return res;
+	}
+		
+
 }
 
 

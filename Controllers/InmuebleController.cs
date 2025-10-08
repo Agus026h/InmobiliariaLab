@@ -144,6 +144,77 @@ namespace devs.Controllers
 
         }
 
+        //Get: Inmueble/Imagenes/
+        public ActionResult Imagenes(int id, [FromServices] RepositorioImagen repositorioIm)
+        {
+            var inmu = _repositorio.BuscarPorId(id);
+            if (inmu == null)
+                return NotFound();
+            inmu.Imagenes = repositorioIm.BuscarPorInmueble(id);
+            return View(inmu);
+
+        }
+
+        //POST: Inmueble/Portada
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult Portada(Imagen entidad, [FromServices] IWebHostEnvironment environment)
+        {
+            try
+            {
+                //creo la ruta para eliminar la imagen anterior en caso de que exista
+                var inmueble = _repositorio.BuscarPorId(entidad.IdInmueble);
+                if (inmueble != null && inmueble.Portada != null)
+                {
+                    //WebRootPath encuentra el camino a la carpeta wwwroot
+                    string rutaEliminar = Path.Combine(environment.WebRootPath, "Uploads", "Inmuebles", Path.GetFileName(inmueble.Portada));
+                    System.IO.File.Delete(rutaEliminar);
+
+                }
+                if (entidad.Archivo != null)
+                {
+                    string wwwPath = environment.WebRootPath;
+                    string path = Path.Combine(wwwPath, "Uploads");
+                    //si no existe creo el directorio
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    path = Path.Combine(path, "Inmuebles");
+                    //tambien, si no existe creo el directorio
+                    if (!Directory.Exists(path))
+                    {
+                        Directory.CreateDirectory(path);
+                    }
+                    string fileName = "portada_" + entidad.IdInmueble + Path.GetExtension(entidad.Archivo.FileName);
+                    string rutaFisicaCompleta = Path.Combine(path, fileName);
+
+                    using (var stream = new FileStream(rutaFisicaCompleta, FileMode.Create))
+                    {
+                        entidad.Archivo.CopyTo(stream);
+                    }
+                    entidad.Url = Path.Combine("/Uploads/Inmuebles", fileName);
+
+                }
+                else
+                {
+                    entidad.Url = string.Empty;
+                }
+                    _repositorio.ModificarPortada(entidad.IdInmueble, entidad.Url);
+            
+                    TempData["Message"] = "Portada actualizada";
+                    return RedirectToAction(nameof(Index));
+                
+
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(Imagenes), new { id = entidad.IdInmueble });
+            }
+
+        }
+
         public ActionResult Detalles(int id, [FromServices] RepositorioContrato repoContrato)
         {
             var inmueble = _repositorio.BuscarPorId(id);

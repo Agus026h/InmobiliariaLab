@@ -35,10 +35,14 @@ public class Inmueble
     public IList<Contrato>? ContratosInmueble { get; set; }
 
     public string? Portada { get; set; }
+    
+    public IFormFile? PortadaFile{ get; set; }
+
+    public IList<Imagen> Imagenes { get; set; } = new List<Imagen>();
 
     public override string ToString()
     {
-        return $"{ Direccion}";
+        return $"{Direccion}";
     }
     
 }
