@@ -2,6 +2,9 @@
 
 @{
     ViewData["Title"] = "Propietarios";
+    
+    var DniFiltro = ViewBag.DniFiltro;
+    var EstadoFiltro = ViewBag.EstadoFiltro; 
 }
 
 <h1>Listado de Propietarios</h1>
@@ -10,75 +13,75 @@
     <a asp-action="Crear">Crear Nuevo Propietario</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdPropietario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Apellido)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Dni)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Telefono)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Email)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdPropietario)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Nombre)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Apellido)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Dni)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Telefono)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Email)
-                </td>
-                
-                <td>
-                    <div class="btn-group" role ="group"> 
-                    <a class = "btn btn-primary" asp-action="Editar" asp-route-id="@item.IdPropietario" title="Editar">
-                      <i class="fa-solid fa-pen"></i>
-                    </a>
-                    
-                    
-                    <a class="btn btn-secundary"asp-action="Detalles" asp-route-id="@item.IdPropietario" title = "Detalles">
-                      <i class="fa-solid fa-eye"></i>
-                    </a> 
-                    
+<form id="filtroForm">
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label for="dniFiltro" class="form-label">Filtrar por DNI:</label>
+            <input type="text" class="form-control" id="dniFiltro" name="dni" 
+                   value="@DniFiltro" placeholder="Ingresa un DNI">
+        </div>
+        
+        <div class="col-md-4">
+            <label for="estadoFiltro" class="form-label">Filtrar por Estado:</label>
+            <select class="form-select" id="estadoFiltro" name="estado">
+                <option value="">Todos</option>
+                <option selected ="@(EstadoFiltro == "true")" value="true" >Activo</option>
+                <option selected = "@(EstadoFiltro == "false")" value="false" >Inactivo</option>
+            </select>
+        </div>
+        
+        <div class="col-md-4 d-flex align-items-end">
+             <button type="submit" class="btn btn-primary">Buscar</button>
+        </div>
+    </div>
+</form>
 
-                    <form asp-action="Borrar" asp-route-id="@item.IdPropietario" method="post"
-                     onsubmit="return confirm('Seguro que desea borrar este propietario?');"
-                     style="display:inline;">
-                      <button type="submit" class="btn btn-danger" title="Eliminar">
-                       <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </form>
-                    </div>
-                </td>
-            </tr>
+<hr/>
+
+<div id="tablaPropietarios">
+    @await Html.PartialAsync("_TablaPropietariosPartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function(){
+        
+        function cargarTabla(url){
+            
+            $("#tablaPropietarios").html('<p class="text-center">Cargando propietarios...</p>');
+            $.ajax({
+                url: url,
+                type: "GET",
+                success: function(data){
+                    $("#tablaPropietarios").html(data);
+                    history.pushState(null, '', url); 
+                },
+                error: function(xhr, status, error){
+                    $("#tablaPropietarios").html('<p class="text-danger text-center">Error al cargar los datos: '+ error+ '</p>');
+                }
+            });
         }
-    </tbody>
-</table>
+
+        
+        $(document).on("click", "#tablaPropietarios a.page-link", function(e){
+            e.preventDefault();
+            var url = $(this).attr("href");
+            cargarTabla(url);
+        });
+
+       
+        $("#filtroForm").on("submit", function (e) {
+            e.preventDefault(); 
+            
+            var dni = $("#dniFiltro").val() || "";
+            var estado = $("#estadoFiltro").val() || ""; 
+            
+            var url = '@Url.Action("Index", "Propietario")';
+            
+            url += `?pagina=1&dni=${dni}&estado=${estado}`; 
+            
+            cargarTabla(url);
+        });
+    });
+    </script>
+}

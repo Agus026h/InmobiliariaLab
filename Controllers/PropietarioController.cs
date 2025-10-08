@@ -14,22 +14,32 @@ namespace devs.Controllers
         }
 
         // GET: Propietario
-        public ActionResult Index()
+        public IActionResult Index(int pagina = 1, string dni = null, string estado = null)
         {
-            try
-            {
+            var tamanio = 5;
+                pagina = (Math.Max(pagina, 1));
 
-                var lista = _repositorio.verTodos();
+                bool? estadoFiltro = null;
+                if (!string.IsNullOrEmpty(estado) && bool.TryParse(estado, out bool parsedEstado))
+                {
+                 estadoFiltro = parsedEstado;
+                }
+                var (lista, total) = _repositorio.verTodosPaginado(pagina, tamanio, dni, estadoFiltro);
+                ViewBag.Pagina = pagina;
+                ViewBag.TotalPaginas = total % tamanio == 0 ? total / tamanio : (total / tamanio) + 1;
 
-                //con esto le paso la lista de propietarios a la vista
-                return View(lista);
-            }
-            catch (Exception ex)
+                ViewBag.DniFiltro = dni;
+                ViewBag.EstadoFiltro = estado;
+
+           
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                TempData["Message"] = "Error al cargar los Propietarios: ";
-                return View(new List<Propietario>());
+                return PartialView("_TablaPropietariosPartial", lista);
             }
+
+            return View(lista);
         }
+
 
 
         public ActionResult Crear()
@@ -133,7 +143,7 @@ namespace devs.Controllers
                 TempData["Message"] = " Error al borrar Propietario";
                 return RedirectToAction(nameof(Index));
             }
-            
+
 
         }
         [Route("[controller]/Buscar/{q}", Name = "Buscar")]
@@ -144,7 +154,7 @@ namespace devs.Controllers
                 var res = _repositorio.buscarPorNombre(q);
                 return Json(new { Datos = res });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { Error = ex.Message });
             }
@@ -173,8 +183,9 @@ namespace devs.Controllers
                 return RedirectToAction(nameof(Index));
             }
         }
-
-
     }
+
+
+
 
 }

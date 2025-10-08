@@ -179,7 +179,7 @@ public class RepositorioPropietario : Conexion
 						Nombre = reader.GetString("Nombre"),
 						Apellido = reader.GetString("Apellido"),
 						Dni = reader.GetString("Dni"),
-						Estado =reader.GetBoolean("Estado"),
+						Estado = reader.GetBoolean("Estado"),
 						Telefono = reader.GetString("Telefono"),
 						Email = reader.GetString("Email"),
 
@@ -193,7 +193,7 @@ public class RepositorioPropietario : Conexion
 
 	}
 
-     
+
 	public IList<Propietario> buscarPorNombre(string nombre)
 	{
 		List<Propietario> res = new List<Propietario>();
@@ -211,7 +211,8 @@ public class RepositorioPropietario : Conexion
 				command.CommandType = CommandType.Text;
 				connection.Open();
 				var reader = command.ExecuteReader();
-				while (reader.Read()) {
+				while (reader.Read())
+				{
 					p = new Propietario
 					{
 						IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
@@ -255,6 +256,71 @@ public class RepositorioPropietario : Conexion
 	}
 
 
+	public (IList<Propietario> Lista, int totalRegistro) verTodosPaginado(int paginaNro = 1, int paginaTam = 10, string dni = null, bool? estado = null)
+	{
+		IList<Propietario> listaP = new List<Propietario>();
+		int totalRegistro = 0;
+		string filtro = "";
+
+		
+		if (!string.IsNullOrEmpty(dni))
+		{
+			filtro += $" WHERE Dni LIKE '%{dni}%'";
+		}
+
+		
+		if (estado.HasValue)
+		{
+			string clausula = filtro.Length > 0 ? " AND " : " WHERE ";
+			string estadoSql = estado.Value ? "1" : "0";
+			filtro += $"{clausula} estado = {estadoSql}"; 
+		}
+
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			connection.Open();
+			string contador = $"SELECT COUNT(*) FROM Propietario {filtro}";
+			using (var countCommand = new MySqlCommand(contador, connection))
+         {
+            countCommand.CommandType = CommandType.Text;
+            
+            totalRegistro = Convert.ToInt32(countCommand.ExecuteScalar());
+         }
+
+
+			String sql = @$"SELECT
+            IdPropietario, Nombre, Apellido, Dni, Email, Telefono, Estado
+            FROM Propietario
+            {filtro}
+            LIMIT {paginaTam} OFFSET {(paginaNro - 1) * paginaTam}  
+        ";
+
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				command.CommandType = CommandType.Text;
+                var reader = command.ExecuteReader();
+				while (reader.Read())
+				{
+					Propietario p = new Propietario
+					{
+						IdPropietario = reader.GetInt32(nameof(Propietario.IdPropietario)),
+                        Nombre = reader.GetString(nameof(Propietario.Nombre)),
+                        Apellido = reader.GetString(nameof(Propietario.Apellido)),
+                        Dni = reader.GetString(nameof(Propietario.Dni)),
+                        Email = reader.GetString(nameof(Propietario.Email)),
+                        Telefono = reader.GetString(nameof(Propietario.Telefono)),
+						Estado = reader.GetBoolean(nameof(Propietario.Estado))
+					};
+					listaP.Add(p);
+				}
+				connection.Close();
+			}
+			return (listaP, totalRegistro);
+		}
 	}
+
+
+
+}
 
 
