@@ -1,0 +1,132 @@
+@model IEnumerable<devs.Models.Contrato>
+
+@{
+    var Pagina = ViewBag.Pagina ?? 1;
+    var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+    
+
+    var IdInmuebleFiltro = ViewBag.IdInmuebleFiltro as int?;
+    var EstadoFiltro = ViewBag.EstadoFiltro as string; 
+    
+    var filtrosQuery = "";
+    if (IdInmuebleFiltro.HasValue)
+    {
+        filtrosQuery += $"&idInmueble={IdInmuebleFiltro.Value}"; 
+    }
+    if (!string.IsNullOrEmpty(EstadoFiltro))
+    {
+       
+        filtrosQuery += $"&estado={EstadoFiltro}";
+    }
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.IdContrato)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaInicio)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaFinOriginal)</th>
+            <th>Inmueble / Direccion</th>
+            <th>Inquilino</th>
+            <th>Estado</th> 
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+           
+            var estadoActual = item.Estado ? "Activo" : "Inactivo"; 
+            
+            <tr class="@(!item.Estado ? "table-warning" : "")">
+                <td>@Html.DisplayFor(modelItem => item.IdContrato)</td>
+                <td>@item.FechaInicio.ToShortDateString()</td>
+                <td>@(item.FechaFinOriginal.HasValue ? item.FechaFinOriginal.Value.ToShortDateString() : "Indefinido")</td>
+                <td>
+                    N° @item.IdInmueble <br/>
+                    **@item.InmuebleC?.Direccion**
+                </td>
+                <td>@item.InquilinoC?.Nombre @item.InquilinoC?.Apellido</td>
+                <td>
+                    <span class="badge @(item.Estado ? "bg-success" : "bg-danger")">
+                        @estadoActual
+                    </span>
+                </td>
+                <td>
+                    <div class="btn-group" role ="group"> 
+                        <a class= "btn btn-primary btn-sm" asp-action="Modificar" asp-route-id="@item.IdContrato" title="Editar">
+                           <i class="fa-solid fa-pen"></i>
+                        </a> 
+                        
+                        <a class="btn btn-secondary btn-sm" asp-action="Detalles" asp-route-id="@item.IdContrato" title="Detalles">
+                           <i class="fa-solid fa-eye"></i>
+                        </a> 
+                        
+                      
+                        <a class="btn btn-info btn-sm" asp-controller="Pago" asp-action="Index" asp-route-contratoId="@item.IdContrato" title="Ver Pagos">
+                            <i class="fa-solid fa-receipt"></i>
+                        </a>
+                        
+                     
+                        @if (item.Estado) 
+                        {
+                            <a class="btn btn-dark btn-sm" asp-action="TerminarAnticipadamente" asp-route-id="@item.IdContrato" title="Terminar Contrato">
+                                <i class="fa-solid fa-handshake-slash"></i>
+                            </a>
+                        }
+
+                        
+                        <form asp-action="Borrar" asp-route-id="@item.IdContrato" method="post"
+                             onsubmit="return confirm('Seguro que desea borrar este Contrato?');"
+                             style="display:inline;">
+                             <button type="submit" class="btn btn-danger btn-sm" title="Eliminar">
+                             <i class="fa-solid fa-trash"></i>
+                             </button>
+                        </form>
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        @if (Pagina > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="~/Contrato/Index?pagina=@(Pagina - 1)@filtrosQuery" aria-label="Anterior">
+                    <i class="fa-solid fa-angles-left"> </i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fa-solid fa-angles-left"></i></span>
+            </li>
+        }
+
+        @for (int i = 1; i <= TotalPaginas; i++)
+        {
+            <li class="page-item @(i == Pagina ? "active" : "")">
+                <a class="page-link" href="~/Contrato/Index?pagina=@i@filtrosQuery">@i</a>
+            </li>
+        }
+        
+        @if (Pagina < TotalPaginas)
+        {
+            <li class="page-item">
+                <a class="page-link" href="~/Contrato/Index?pagina=@(Pagina + 1)@filtrosQuery" aria-label="Siguiente">
+                    <i class="fa-solid fa-angles-right"></i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fa-solid fa-angles-right" ></i></span>
+            </li>
+        }
+    </ul>
+</nav>

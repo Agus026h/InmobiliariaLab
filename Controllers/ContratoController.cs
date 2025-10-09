@@ -24,11 +24,53 @@ namespace devs.Controllers
         }
 
         // GET: ContratoController
-        public ActionResult Index()
-        {
-            var lista = _repositorio.VerTodos();
-            return View(lista);
+        // EN ContratoController.cs
+
+    public IActionResult Index(
+        int pagina = 1,
+        int? idInmueble = null,
+        string estado = null) 
+            {
+                var tamanio = 5; 
+                pagina = (Math.Max(pagina, 1)); 
+                
+               
+                bool? estadoFiltroBool = null;
+                if (!string.IsNullOrEmpty(estado))
+                {
+                   
+                    if (bool.TryParse(estado, out bool parsedEstado))
+                    {
+                        estadoFiltroBool = parsedEstado;
+                    }
+                }
+
+              
+                var (lista, total) = _repositorio.verTodosPaginado(
+                    pagina,
+                    tamanio,
+                    idInmueble,
+                    estadoFiltroBool); 
+
+                
+                ViewBag.Pagina = pagina;
+                ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamanio);
+
+                
+                ViewBag.IdInmuebleFiltro = idInmueble;
+                ViewBag.EstadoFiltro = estado; 
+
+                
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                {
+                    return PartialView("_TablaContratosPartial", lista);
+                }
+
+                return View(lista);
         }
+
+
+
 
         public ActionResult Crear()
         {

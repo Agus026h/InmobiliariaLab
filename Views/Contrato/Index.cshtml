@@ -1,84 +1,109 @@
 ﻿@model IEnumerable<devs.Models.Contrato>
 
 @{
-    ViewData["Title"] = "Contrato";
+    ViewData["Title"] = "Contratos";
+    
+   
+    var IdInmuebleFiltro = ViewBag.IdInmuebleFiltro as int?;
+    
+   
+    var EstadoFiltro = ViewBag.EstadoFiltro as string;
+
+    
+    var estados = new List<Tuple<string, string>> { 
+        Tuple.Create("Activo", "true"), 
+        Tuple.Create("Inactivo", "false") 
+    };
 }
 
 <h1>Listado de Contratos</h1>
 
 <p>
-    <a asp-action="Crear">Crear Nuevo Contrato</a>
+    <a asp-action="Crear" class="btn btn-success">Crear Nuevo Contrato</a>
 </p>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdContrato)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaInicio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaFinOriginal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdInquilino)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdInmueble)
-            </th>
-            <th> 
-              
-            </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IdContrato)
-                </td>
-                <td>
-                    @item.FechaInicio.ToShortDateString()
-                </td>
-                <td>
-                    @(item.FechaFinOriginal.HasValue ? item.FechaFinOriginal.Value.ToShortDateString() : "Sin Definir")
-                </td>
-                <td>
-                    @(item.Estado ? "activo" : "Inactivo")
-                </td>
-                <td>
-                    @item.InquilinoC.ToString()
-                </td>
-                <td>
-                    
-                    @item.InmuebleC.ToString()
-                </td>
-                <td>
-                 <div class="btn-group" role ="group"> 
-                    <a class= "btn btn-primary" asp-action="Modificar" asp-route-id="@item.IdContrato" title="Editar">
-                       <i class="fa-solid fa-pen"></i>
-                    </a> 
-                    
-                    <a class="btn btn-secundary" asp-action="Detalles" asp-route-id="@item.IdContrato" title="Detalles">
-                    <i class="fa-solid fa-eye"></i>
-                    </a> 
 
-                    <form asp-action="Borrar" asp-route-id="@item.IdContrato" method="post"
-                     onsubmit="return confirm('Seguro que desea borrar este Inquilino?');"
-                     style="display:inline;">
-                      <button type="submit" class="btn btn-danger" title="Eliminar">
-                      <i class="fa-solid fa-trash"></i>
-                      </button>
-                    </form>
-                    </div>
-                </td>
-            </tr>
+<form id="filtroForm" class="mb-4 p-3 border rounded bg-light">
+    <div class="row">
+        
+       
+        <div class="col-md-4">
+            <label for="estadoFiltro" class="form-label">Estado:</label>
+            <select class="form-select" id="estadoFiltro" name="estado">
+                <option value="">Todos</option>
+                @foreach (var estado in estados)
+                {
+                    <option 
+                        value="@estado.Item2" 
+                        selected ="@(EstadoFiltro == estado.Item2)">
+                        @estado.Item1 
+                    </option>
+                }
+            </select>
+        </div>
+        
+       
+        <div class="col-md-4">
+            <label for="idInmuebleFiltro" class="form-label">ID Inmueble:</label>
+            <input type="number" class="form-control" id="idInmuebleFiltro" name="idInmueble" 
+                    value="@IdInmuebleFiltro" placeholder="Buscar por ID">
+        </div>
+        
+       
+        <div class="col-md-4 d-flex align-items-end">
+             <button type="submit" class="btn btn-primary w-100">
+                 <i class="fa-solid fa-magnifying-glass"></i> Buscar
+             </button>
+        </div>
+    </div>
+</form>
+
+<hr/>
+
+
+<div id="tablaContratos">
+    @await Html.PartialAsync("_TablaContratosPartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function(){
+        
+        function cargarTabla(url){
+            $("#tablaContratos").html('<div class="text-center py-5"><i class="fa-solid fa-spinner fa-spin fa-2x"></i><p>Cargando contratos...</p></div>');
+            
+            $.ajax({
+                url: url,
+                type: "GET",
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }, 
+                success: function(data){
+                    $("#tablaContratos").html(data);
+                    history.pushState(null, '', url); 
+                },
+                error: function(xhr, status, error){
+                    $("#tablaContratos").html('<p class="text-danger text-center">Error al cargar los datos: ' + error + '</p>');
+                }
+            });
         }
-    </tbody>
-</table>
+
+        $(document).on("click", "#tablaContratos a.page-link", function(e){
+            e.preventDefault();
+            var url = $(this).attr("href");
+            cargarTabla(url);
+        });
+
+        $("#filtroForm").on("submit", function (e) {
+            e.preventDefault(); 
+            
+            var idInmueble = $("#idInmuebleFiltro").val() || "";
+            var estado = $("#estadoFiltro").val() || ""; 
+            
+            var url = '@Url.Action("Index", "Contrato")';
+            
+            url += `?pagina=1&idInmueble=${idInmueble}&estado=${estado}`; 
+            
+            cargarTabla(url);
+        });
+    });
+    </script>
+}

@@ -126,7 +126,7 @@ public class RepositorioContrato : Conexion
                             IdInquilino = reader.GetInt32(nameof(Contrato.IdInquilino)),
                             Nombre = reader.GetString(nameof(Inquilino.Nombre)),
                             Apellido = reader.GetString(nameof(Inquilino.Apellido)),
-                            Dni =reader.GetString(nameof(Inquilino.Dni))
+                            Dni = reader.GetString(nameof(Inquilino.Dni))
                         },
                         InmuebleC = new Inmueble
                         {
@@ -269,16 +269,16 @@ public class RepositorioContrato : Conexion
             FROM contrato c 
             JOIN inquilino i ON i.idInquilino = c.idInquilino
             JOIN inmueble inm ON c.idInmueble = inm.idInmueble
-            WHERE c.IdInmueble = @idInmueble"; 
+            WHERE c.IdInmueble = @idInmueble";
 
             using (MySqlCommand command = new MySqlCommand(sql, connection))
             {
-                command.Parameters.AddWithValue("@idInmueble", idInmueble); 
+                command.Parameters.AddWithValue("@idInmueble", idInmueble);
                 command.CommandType = CommandType.Text;
                 connection.Open();
                 var reader = command.ExecuteReader();
 
-               
+
                 while (reader.Read())
                 {
                     lista.Add(new Contrato
@@ -308,5 +308,106 @@ public class RepositorioContrato : Conexion
         }
         return lista;
     }
+
+    public (IList<Contrato> Lista, int totalRegistro) verTodosPaginado(
+    int paginaNro = 1, int paginaTam = 5,
+    int? idInmueble = null, bool? estado = null) 
+    {
+        IList<Contrato> listaC = new List<Contrato>();
+        int totalRegistro = 0;
+        var filtros = new List<string>();
+
+        
+
+        
+        if (idInmueble.HasValue)
+        {
+            filtros.Add($"c.IdInmueble = {idInmueble.Value}");
+        }
+
+       
+        if (estado.HasValue)
+        {
+            int estadoDB = estado.Value ? 1 : 0;
+            filtros.Add($"c.Estado = {estadoDB}");
+        }
+
+      
+        string whereClausula = "";
+        if (filtros.Count > 0)
+        {
+            whereClausula = " WHERE " + string.Join(" AND ", filtros);
+        }
+
+       
+        using (MySqlConnection connection = new MySqlConnection(connectionString))
+        {
+            connection.Open();
+
+            
+            string sqlCount = $@"
+            SELECT COUNT(*) 
+            FROM contrato c 
+            JOIN inquilino q ON c.IdInquilino = q.IdInquilino
+            JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+            {whereClausula}";
+
+            using (var countCommand = new MySqlCommand(sqlCount, connection))
+            {
+                totalRegistro = Convert.ToInt32(countCommand.ExecuteScalar());
+            }
+
+            
+            int offset = (paginaNro - 1) * paginaTam;
+
+            string sqlSelect = $@"
+            SELECT 
+                c.*, 
+                q.Nombre AS InquilinoNombre, q.Apellido AS InquilinoApellido,
+                i.Direccion, i.Tipo -- Campos de Inmueble (i)
+
+            FROM contrato c
+            JOIN inquilino q ON c.IdInquilino = q.IdInquilino
+            JOIN inmueble i ON c.IdInmueble = i.IdInmueble
+            
+            {whereClausula}
+            ORDER BY c.FechaInicio DESC
+            LIMIT {paginaTam} OFFSET {offset}
+        ";
+
+            using (MySqlCommand command = new MySqlCommand(sqlSelect, connection))
+            {
+                var reader = command.ExecuteReader();
+
+                 while (reader.Read())
+                {
+                    listaC.Add(new Contrato
+                    {
+                        IdContrato = reader.GetInt32(nameof(Contrato.IdContrato)),
+                        FechaInicio = reader.GetDateTime(nameof(Contrato.FechaInicio)),
+                        FechaFinOriginal = reader.IsDBNull("FechaFinOriginal") ? (DateTime?)null : reader.GetDateTime("FechaFinOriginal"),
+                        FechaFinEfectiva = reader.IsDBNull("FechaFinEfectiva") ? (DateTime?)null : reader.GetDateTime("FechaFinEfectiva"),
+                        MontoMensual = reader.GetDecimal(nameof(Contrato.MontoMensual)),
+                        Estado = reader.IsDBNull(nameof(Contrato.Estado)) ? false : Convert.ToBoolean(reader[nameof(Contrato.Estado)]),
+                        IdInquilino = reader.GetInt32(nameof(Contrato.IdInquilino)),
+                        IdInmueble = reader.GetInt32(nameof(Contrato.IdInmueble)),
+                        InquilinoC = new Inquilino
+                        {
+                            IdInquilino = reader.GetInt32(nameof(Contrato.IdInquilino)),
+                            Nombre = reader.GetString("InquilinoNombre"),
+                            Apellido = reader.GetString("InquilinoApellido"),
+                        },
+                        InmuebleC = new Inmueble
+                        {
+                            IdInmueble = reader.GetInt32(nameof(Contrato.IdInmueble)),
+                            Direccion = reader.GetString(nameof(Inmueble.Direccion))
+                        }
+                    });
+                }
+            }
+            return (listaC, totalRegistro);
+        }
+    }
+
 
 }
