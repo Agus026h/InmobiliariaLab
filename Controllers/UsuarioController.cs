@@ -41,6 +41,7 @@ namespace devs.Controllers
 
         }
         //GET: Usuario/Crear
+        
         [Authorize(Policy = "Administrador")]
         public ActionResult Crear()
         {
@@ -69,9 +70,10 @@ namespace devs.Controllers
 
          
         [HttpPost]
+        [ActionName("Edit")]
 		[ValidateAntiForgeryToken]
 		
-		public async Task<ActionResult> Edit(int idUsuario, Usuario u)
+		public async Task<ActionResult> GuardarPerfil(int idUsuario, Usuario u)
 		{
 			var vista = nameof(Edit);
             if (!ModelState.IsValid)
@@ -168,7 +170,7 @@ namespace devs.Controllers
                 }
                     TempData["Message"] = "Los datos del usuario se han actualizado correctamente.";
                    
-                    return RedirectToAction(vista);
+                    return View(vista, u);
             }
             catch (Exception ex)
             {
@@ -179,7 +181,7 @@ namespace devs.Controllers
                 return View(vista, u);
             }
 		}
-
+       
         [Authorize(Policy = "Administrador")]
         //Post: Usuario/crear
         [HttpPost]
