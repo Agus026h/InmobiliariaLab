@@ -1,10 +1,11 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using devs.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace devs.Controllers
 {
-
+    [Authorize]
     public class ImagenesController : Controller
     {
         private readonly RepositorioImagen repositorio;

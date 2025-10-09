@@ -1,8 +1,10 @@
 using devs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace devs.Controllers
 {
+    [Authorize]
     public class InquilinoController : Controller
     {
         private readonly RepositorioInquilino _repositorio;
@@ -13,7 +15,7 @@ namespace devs.Controllers
             _repositorioContrato = repositorioContrato;
         }
 
-        
+
 
         public ActionResult Index(int pagina = 1, string dni = null, string estado = null)
         {
@@ -27,7 +29,7 @@ namespace devs.Controllers
                 bool? estadoFiltro = null;
                 if (!string.IsNullOrEmpty(estado) && bool.TryParse(estado, out bool parsedEstado))
                 {
-                 estadoFiltro = parsedEstado;
+                    estadoFiltro = parsedEstado;
                 }
                 var (lista, total) = _repositorio.verTodosPaginado(pagina, tamanio, dni, estadoFiltro);
                 ViewBag.Pagina = pagina;
@@ -43,7 +45,7 @@ namespace devs.Controllers
                     return PartialView("_TablaInquilinosPartial", lista);
 
                 }
- 
+
                 return View(lista);
             }
             catch (Exception ex)
@@ -132,7 +134,7 @@ namespace devs.Controllers
             }
         }
 
-
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         public ActionResult Borrar(int id)
         {
@@ -158,7 +160,8 @@ namespace devs.Controllers
         [HttpGet]
         public ActionResult Detalles(int id)
         {
-            try {
+            try
+            {
                 var inquilino = _repositorio.buscarId(id);
 
                 var contratos = _repositorioContrato.ObtenerContratosPorInquilino(id);
@@ -166,7 +169,8 @@ namespace devs.Controllers
                 inquilino.ContratosInquilino = contratos;
 
                 return View(inquilino);
-            }catch (Exception ex)
+            }
+            catch (Exception ex)
             {
 
                 TempData["Message"] = " Error al cargar detalles";
@@ -176,7 +180,7 @@ namespace devs.Controllers
 
         }
 
-       [Route("[controller]/Buscar/{q}")]
+        [Route("[controller]/Buscar/{q}")]
         public IActionResult Buscar(string q)
         {
             try
@@ -184,7 +188,7 @@ namespace devs.Controllers
                 var res = _repositorio.buscarPorNombre(q);
                 return Json(new { datos = res });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { Error = ex.Message });
             }

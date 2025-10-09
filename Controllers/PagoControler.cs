@@ -1,9 +1,11 @@
 using devs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
 namespace devs.Controllers
 {
+    [Authorize]
     public class PagoController : Controller
     {
         private readonly RepositorioPago _repositorioPago;
@@ -28,37 +30,37 @@ namespace devs.Controllers
             int? contratoId = null,
             string estado = null,
             string direccionInmueble = null)
+        {
+            var tamanio = 5;
+            pagina = (Math.Max(pagina, 1));
+
+
+
+
+            var (lista, total) = _repositorioPago.verTodosPaginado(
+                pagina,
+                tamanio,
+                contratoId,
+                estado,
+                direccionInmueble);
+
+
+            ViewBag.Pagina = pagina;
+            ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamanio);
+
+            ViewBag.ContratoIdFiltro = contratoId;
+            ViewBag.EstadoFiltro = estado;
+            ViewBag.DireccionInmuebleFiltro = direccionInmueble;
+
+
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                var tamanio = 5; 
-                pagina = (Math.Max(pagina, 1));
-
-                
-
-                
-                var (lista, total) = _repositorioPago.verTodosPaginado(
-                    pagina,
-                    tamanio,
-                    contratoId,
-                    estado,
-                    direccionInmueble);
-
-                
-                ViewBag.Pagina = pagina;
-                ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamanio);
-
-                ViewBag.ContratoIdFiltro = contratoId;
-                ViewBag.EstadoFiltro = estado;
-                ViewBag.DireccionInmuebleFiltro = direccionInmueble;
-                
-
-               
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                {
-                    return PartialView("_TablaPagosPartial", lista); 
-                }
-
-                return View(lista);
+                return PartialView("_TablaPagosPartial", lista);
             }
+
+            return View(lista);
+        }
 
 
 
@@ -173,6 +175,7 @@ namespace devs.Controllers
         }
 
         // POST: PagoController/BajaLogica/5 (Anulacion)
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult BajaLogica(int id, int idUsuarioAnulador)
@@ -195,12 +198,12 @@ namespace devs.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-     
-         
-         [HttpPost]
-        public ActionResult Pagar(int id) 
+
+
+        [HttpPost]
+        public ActionResult Pagar(int id)
         {
-            
+
 
             int resultado = _repositorioPago.MarcarComoPagado(id);
 

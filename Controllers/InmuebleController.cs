@@ -1,8 +1,10 @@
 using devs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace devs.Controllers
 {
+    [Authorize]
     public class InmuebleController : Controller
     {
 
@@ -24,7 +26,7 @@ namespace devs.Controllers
                 var res = _repositorio.buscarPorNombre(q);
                 return Json(new { results = res });
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return Json(new { Error = ex.Message });
             }
@@ -35,35 +37,35 @@ namespace devs.Controllers
          string direccion = null,
          string uso = null,
          string estado = null,
-         string nombrePropietario = null) 
+         string nombrePropietario = null)
         {
             var tamanio = 5;
             pagina = (Math.Max(pagina, 1));
 
-            
+
             int? usoFiltro = null;
             if (!string.IsNullOrEmpty(uso) && int.TryParse(uso, out int parsedUso)) usoFiltro = parsedUso;
             int? estadoFiltro = null;
             if (!string.IsNullOrEmpty(estado) && int.TryParse(estado, out int parsedEstado)) estadoFiltro = parsedEstado;
 
-            
+
             var (lista, total) = _repositorio.verTodosPaginado(
                 pagina,
                 tamanio,
                 direccion,
                 usoFiltro,
                 estadoFiltro,
-                nombrePropietario); 
+                nombrePropietario);
 
-            
+
             ViewBag.Pagina = pagina;
             ViewBag.TotalPaginas = (int)Math.Ceiling((double)total / tamanio);
 
             ViewBag.DireccionFiltro = direccion;
             ViewBag.UsoFiltro = uso;
             ViewBag.EstadoFiltro = estado;
-            ViewBag.NombrePropietarioFiltro = nombrePropietario; 
-                                                               
+            ViewBag.NombrePropietarioFiltro = nombrePropietario;
+
 
             // ver si es AJAX ---
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
@@ -160,7 +162,7 @@ namespace devs.Controllers
             }
 
         }
-
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         public ActionResult Borrar(int id)
         {
@@ -238,11 +240,11 @@ namespace devs.Controllers
                 {
                     entidad.Url = string.Empty;
                 }
-                    _repositorio.ModificarPortada(entidad.IdInmueble, entidad.Url);
-            
-                    TempData["Message"] = "Portada actualizada";
-                    return RedirectToAction(nameof(Index));
-                
+                _repositorio.ModificarPortada(entidad.IdInmueble, entidad.Url);
+
+                TempData["Message"] = "Portada actualizada";
+                return RedirectToAction(nameof(Index));
+
 
             }
             catch (Exception ex)

@@ -1,8 +1,10 @@
 using devs.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace devs.Controllers
 {
+    [Authorize]
     public class ContratoController : Controller
     {
 
@@ -82,7 +84,7 @@ namespace devs.Controllers
                 }
                 TempData["Message"] = "No se pudo modificar el contrato";
                 return View(c);
-                
+
             }
             catch (Exception ex)
             {
@@ -93,7 +95,7 @@ namespace devs.Controllers
 
         }
 
-
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         public ActionResult Borrar(int id)
         {
@@ -125,7 +127,7 @@ namespace devs.Controllers
 
             return View(contrato);
         }
-    
+
 
 
     }

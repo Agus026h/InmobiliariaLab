@@ -8,7 +8,7 @@ using System.Security.Claims;
 
 namespace devs.Controllers
 {
-    //[Authorize(Policy = "Administrador")]
+    [Authorize]
     public class UsuarioController : Controller
     {
         private readonly ILogger<UsuarioController> logger;
@@ -24,6 +24,7 @@ namespace devs.Controllers
             this.logger = logger;
         }
         //GET: Usuario
+        [Authorize(Policy = "Administrador")]
         public ActionResult Index(int pagina = 1)
         {
             var usuarios = repositorio.ObtenerLista(pagina);
@@ -39,13 +40,14 @@ namespace devs.Controllers
 
         }
         //GET: Usuario/Crear
-        [AllowAnonymous]
+        [Authorize(Policy = "Administrador")]
         public ActionResult Crear()
         {
 
             return View();
         }
-        //Get: Usuarios/Edit                 
+        //Get: Usuarios/Edit   
+                     
         public ActionResult Perfil()
         {
             ViewData["Title"] = "Mi perfil";
@@ -54,7 +56,7 @@ namespace devs.Controllers
 
         }
         //GET: Usuario/Edit
-        [Authorize(Policy = "Administrador")]
+        
         public ActionResult Edit(int id)
         {
             ViewData["Title"] = "Editar Usuario";
@@ -62,6 +64,8 @@ namespace devs.Controllers
             return View(u);
         }
         //POST: Usuario/Edit
+
+         
         [HttpPost]
 		[ValidateAntiForgeryToken]
 		
@@ -174,7 +178,7 @@ namespace devs.Controllers
             }
 		}
 
-
+        [Authorize(Policy = "Administrador")]
         //Post: Usuario/crear
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -298,6 +302,7 @@ namespace devs.Controllers
 
 
         //GET: salir
+        
         [Route("salir", Name = "logout")]
         public async Task<ActionResult> Logout()
         {
@@ -309,7 +314,7 @@ namespace devs.Controllers
         //Post: Usuario/Delete
         [HttpPost]
         
-
+        [Authorize(Policy = "Administrador")]
         public ActionResult Delete(int id, Usuario usuario)
         {
             try

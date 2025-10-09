@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using devs.Models;
+using Microsoft.AspNetCore.Authorization;
 
 
 namespace devs.Controllers
 {
+    [Authorize]
     public class PropietarioController : Controller
     {
         private readonly RepositorioPropietario _repositorio;
@@ -17,21 +19,21 @@ namespace devs.Controllers
         public IActionResult Index(int pagina = 1, string dni = null, string estado = null)
         {
             var tamanio = 5;
-                pagina = (Math.Max(pagina, 1));
+            pagina = (Math.Max(pagina, 1));
 
-                bool? estadoFiltro = null;
-                if (!string.IsNullOrEmpty(estado) && bool.TryParse(estado, out bool parsedEstado))
-                {
-                 estadoFiltro = parsedEstado;
-                }
-                var (lista, total) = _repositorio.verTodosPaginado(pagina, tamanio, dni, estadoFiltro);
-                ViewBag.Pagina = pagina;
-                ViewBag.TotalPaginas = total % tamanio == 0 ? total / tamanio : (total / tamanio) + 1;
+            bool? estadoFiltro = null;
+            if (!string.IsNullOrEmpty(estado) && bool.TryParse(estado, out bool parsedEstado))
+            {
+                estadoFiltro = parsedEstado;
+            }
+            var (lista, total) = _repositorio.verTodosPaginado(pagina, tamanio, dni, estadoFiltro);
+            ViewBag.Pagina = pagina;
+            ViewBag.TotalPaginas = total % tamanio == 0 ? total / tamanio : (total / tamanio) + 1;
 
-                ViewBag.DniFiltro = dni;
-                ViewBag.EstadoFiltro = estado;
+            ViewBag.DniFiltro = dni;
+            ViewBag.EstadoFiltro = estado;
 
-           
+
             if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
                 return PartialView("_TablaPropietariosPartial", lista);
@@ -127,7 +129,7 @@ namespace devs.Controllers
             }
         }
 
-
+        [Authorize(Policy = "Administrador")]
         [HttpPost]
         public ActionResult Borrar(int id)
         {
