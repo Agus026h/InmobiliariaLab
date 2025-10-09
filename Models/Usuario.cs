@@ -13,11 +13,13 @@ public class Usuario
     public string Apellido { get; set; } = "";
     [Required, EmailAddress]
     public string Email { get; set; } = "";
-    [Required, DataType(DataType.Password)]
-    public string Clave { get; set; } = "";
+    [DataType(DataType.Password)]
+    public string? Clave { get; set; }
     public string? Avatar { get; set; }
 
     public IFormFile? AvatarFile { get; set; }
- 		
-    public Roles Rol { get; set; }       
+
+    public Roles Rol { get; set; }
+
+    
 }

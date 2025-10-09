@@ -45,7 +45,7 @@ namespace devs.Controllers
 
             return View();
         }
-
+        //Get: Usuarios/Edit                 
         public ActionResult Perfil()
         {
             ViewData["Title"] = "Mi perfil";
@@ -53,7 +53,7 @@ namespace devs.Controllers
             return View("Edit", u);
 
         }
-
+        //GET: Usuario/Edit
         [Authorize(Policy = "Administrador")]
         public ActionResult Edit(int id)
         {
@@ -61,6 +61,119 @@ namespace devs.Controllers
             var u = repositorio.ObtenerPorId(id);
             return View(u);
         }
+        //POST: Usuario/Edit
+        [HttpPost]
+		[ValidateAntiForgeryToken]
+		
+		public async Task<ActionResult> Edit(int idUsuario, Usuario u)
+		{
+			var vista = nameof(Edit);
+            if (!ModelState.IsValid)
+            {
+               
+                u.IdUsuario = idUsuario; 
+                return View(vista, u); 
+            }
+			try
+            {
+                var emailLogeado = User?.Identity?.Name;
+                var usuarioLogeadoBD = String.IsNullOrEmpty(emailLogeado) ? null : repositorio.ObtenerPorEmail(emailLogeado);//traigo usuario de la base de datos
+                
+                if (!User.IsInRole("Administrador"))
+                {
+                    vista = nameof(Perfil);
+
+                    if (usuarioLogeadoBD?.IdUsuario != idUsuario)
+                        return RedirectToAction(nameof(Index), "Home");
+                }
+                var usuarioOriginal = repositorio.ObtenerPorId(idUsuario);
+                if (User.IsInRole("Administrador"))
+                {
+                    
+                    if (!string.IsNullOrEmpty(u.Clave))
+                    {
+                        //paso la clave que proporciono el administrador
+                        string hashed = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                            password: u.Clave,
+                            salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
+                            prf: KeyDerivationPrf.HMACSHA1,
+                            iterationCount: 1000,
+                            numBytesRequested: 256 / 8));
+                        u.Clave = hashed;
+                    }
+                    else
+                    {
+                        u.Clave = usuarioOriginal.Clave;
+                    }
+                }
+                if (u.AvatarFile != null)
+                {
+                    string wwwPath = environment.WebRootPath;
+                    string path = Path.Combine(wwwPath, "Uploads");
+
+
+                    if (!string.IsNullOrEmpty(usuarioOriginal.Avatar))
+                    {
+                        var oldPath = Path.Combine(wwwPath, usuarioOriginal.Avatar.TrimStart('/'));
+                        if (System.IO.File.Exists(oldPath))
+                            System.IO.File.Delete(oldPath);
+                    }
+
+
+                    string fileName = "avatar_" + u.IdUsuario + Path.GetExtension(u.AvatarFile.FileName);
+                    string pathCompleto = Path.Combine(path, fileName);
+                    u.Avatar = Path.Combine("/Uploads", fileName);
+
+                    using (FileStream stream = new FileStream(pathCompleto, FileMode.Create))
+                    {
+                        await u.AvatarFile.CopyToAsync(stream);
+                    }
+                }
+                else
+                {
+                    u.Avatar = usuarioOriginal.Avatar;
+                }
+
+                if (!User.IsInRole("Administrador"))
+                {
+                    u.Clave = usuarioOriginal.Clave;
+                    u.Rol = usuarioOriginal.Rol;
+                }
+                repositorio.Modificacion(u);
+                //si el usuario se modifica a si mismo se actualizan las claims
+                if (usuarioLogeadoBD?.IdUsuario == idUsuario)
+                {
+                    var claims = new List<Claim>
+                {
+                    // paso los datos actualizados de u
+                    new Claim(ClaimTypes.Name, u.Email),
+                    new Claim("FullName", u.Nombre + " " + u.Apellido),
+                    new Claim(ClaimTypes.Role, u.Rol.ToString()),
+                    new Claim("IdUsuario", u.IdUsuario.ToString()), 
+                };
+
+                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+                var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+                
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    claimsPrincipal
+                    );
+                }
+                    TempData["Message"] = "Los datos del usuario se han actualizado correctamente.";
+                   
+                    return RedirectToAction(vista);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Error al editar el usuario");
+                TempData["Message"] = "Error al editar usuario" + ex;
+                
+
+                return View(vista, u);
+            }
+		}
+
 
         //Post: Usuario/crear
         [HttpPost]

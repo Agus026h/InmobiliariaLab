@@ -192,7 +192,7 @@ public class RepositorioUsuario : Conexion
                 {
                     e = new Usuario
                     {
-                        IdUsuario = reader.GetInt32("Id"),
+                        IdUsuario = reader.GetInt32("idUsuario"),
                         Nombre = reader.GetString("Nombre"),
                         Apellido = reader.GetString("Apellido"),
                         Avatar = reader["Avatar"] is DBNull ? null : reader.GetString("Avatar"),
