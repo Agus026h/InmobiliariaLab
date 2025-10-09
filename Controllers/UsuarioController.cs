@@ -89,7 +89,7 @@ namespace devs.Controllers
                 
                 if (!User.IsInRole("Administrador"))
                 {
-                    vista = nameof(Perfil);
+                    vista = nameof(Edit);
 
                     if (usuarioLogeadoBD?.IdUsuario != idUsuario)
                         return RedirectToAction(nameof(Index), "Home");
