@@ -22,4 +22,10 @@ namespace devs.Models
         Departamento
 
     }
+
+    public enum Roles
+    {
+        Administrador,
+        User
+    }
 }

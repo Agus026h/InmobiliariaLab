@@ -10,13 +10,14 @@ builder.Services.AddScoped<RepositorioInquilino>();
 builder.Services.AddScoped<RepositorioInmueble>();
 builder.Services.AddScoped<RepositorioContrato>();
 builder.Services.AddScoped<RepositorioImagen>();
+builder.Services.AddScoped<RepositorioUsuario>();
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>
 {
 
-    options.LoginPath = "/Usuarios/Login";  //ruta para iniciar sesion
-    options.LogoutPath = "/Usuarios/Logout"; //ruta para deslogearse
+    options.LoginPath = "/Usuario/Login";  //ruta para iniciar sesion
+    options.LogoutPath = "/Usuario/Logout"; //ruta para deslogearse
     options.AccessDeniedPath = "/Home/Restringido"; //ruta cuando no tiene acceso
 
 });
@@ -24,6 +25,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("Administrador", policy => policy.RequireRole("Administrador"));
+    options.AddPolicy("User", policy => policy.RequireRole("User", "Administrador")); //permite el acceso de administradores a los controladores que requieren rol de usuario pero no viceversa
 });
 
 var app = builder.Build();

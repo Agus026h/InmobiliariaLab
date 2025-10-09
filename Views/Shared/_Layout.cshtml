@@ -14,9 +14,21 @@
     
 </head>
 <body>
+    @{
+		bool IsAuthenticated = User?.Identity?.IsAuthenticated ?? false;
+		var NombreUsuario = User?.Identity?.Name ?? "";
+		var IsAdmin = (User?.IsInRole("Administrador") ?? false);
+	}
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid ">
+            @if (!IsAuthenticated)
+				{
+					<a class="py-2" asp-controller="Home" asp-action="Index"><i class="fa-solid fa-house"></i> Inicio</a>
+					<a class="py-2 d-none d-md-inline-block float-right" href='@Url.Link("login", null)'><i class="fa-solid fa-right-to-bracket"></i> Acceder</a>
+				}
+				else
+				{
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">devs</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -24,9 +36,11 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        @* <li class="nav-item hover-effect">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Inicio</a>
-                        </li> *@
+                       
+                       @if (IsAdmin)
+					{
+						<a class="py-2 d-none d-md-inline-block" asp-controller="Usuario" asp-action="Index"><i class="fa-solid fa-user"></i> Usuarios</a>
+					}
 
                         <li class="nav-item dropdown hover-effect">
                             <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu1">Inquilinos</a>
@@ -60,7 +74,18 @@
                             </ul>
                         </li>
                     </ul>
+                    <div class="nav-item dropdown hover-effect">
+						<a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menuUsuario" data-display="static">
+							<i class="fa-solid fa-user"></i> @User?.Identity?.Name
+						</a>
+
+						<div class="dropdown-menu" aria-labelledby="menuUsuario">
+							<a class="dropdown-item text-dark" asp-controller="Usuario" asp-action="Perfil"><i class="fa-solid fa-user"></i> Perfil</a>
+							<a class="dropdown-item text-dark" asp-controller="Usuario" asp-action="Logout"><i class="fa-solid fa-right-from-bracket"></i> Salir</a>
+						</div>
+					</div>
                 </div>
+                }
             </div>
         </nav>
     </header>

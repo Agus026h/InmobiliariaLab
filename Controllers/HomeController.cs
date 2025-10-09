@@ -2,6 +2,11 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using devs.Models;
 
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+
 namespace devs.Controllers;
 
 public class HomeController : Controller
@@ -18,6 +23,14 @@ public class HomeController : Controller
         return View();
     }
 
+
+    public ActionResult Restringido() 
+	{
+		return View();
+	}
+
+
+    
     public IActionResult Privacy()
     {
         return View();
