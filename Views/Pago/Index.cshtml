@@ -1,0 +1,112 @@
+@model IEnumerable<devs.Models.Pago>
+
+@{
+    ViewData["Title"] = "Pagos";
+    
+    // Filtros
+    var ContratoIdFiltro = ViewBag.ContratoIdFiltro as int?;
+    var EstadoFiltro = ViewBag.EstadoFiltro as string;
+    var DireccionInmuebleFiltro = ViewBag.DireccionInmuebleFiltro as string;
+
+    
+}
+
+<h1>Registro de Pagos</h1>
+
+<p>
+    
+    <a asp-action="Crear">Registrar Nuevo Pago</a>
+</p>
+
+<form id="filtroForm">
+    <div class="row mb-3">
+        
+       
+        <div class="col-md-3">
+            <label for="estadoFiltro" class="form-label">Estado:</label>
+            <select class="form-select" id="estadoFiltro" name="estado">
+                <option value="">Todos</option>
+                @foreach (var estado in Enum.GetNames(typeof(EstadoPago)))
+                {
+                    <option 
+                        value="@estado" 
+                        selected ="@(EstadoFiltro == estado)">
+                        @estado
+                    </option>
+                }
+            </select>
+        </div>
+        
+       
+        <div class="col-md-3">
+            <label for="contratoIdFiltro" class="form-label">Contrato N°:</label>
+            <input type="number" class="form-control" id="contratoIdFiltro" name="contratoId" 
+                    value="@ContratoIdFiltro" placeholder="Buscar por ID de Contrato">
+        </div>
+        
+        
+        <div class="col-md-4">
+            <label for="direccionInmuebleFiltro" class="form-label">Direccion Inmueble:</label>
+            <input type="text" class="form-control" id="direccionInmuebleFiltro" name="direccionInmueble" 
+                    value="@DireccionInmuebleFiltro" placeholder="Buscar dirección del inmueble">
+        </div>
+        
+        <div class="col-md-2 d-flex align-items-end">
+             <button type="submit" class="btn btn-primary w-100">Buscar</button>
+        </div>
+    </div>
+</form>
+
+<hr/>
+
+<div id="tablaPagos">
+    @await Html.PartialAsync("_TablaPagosPartial", Model)
+</div>
+
+@section Scripts {
+    <script>
+    $(document).ready(function(){
+        
+        function cargarTabla(url){
+            
+             $("#tablaPagos").html('<p class="text-center">Cargando pagos...</p>');
+            $.ajax({
+                url: url,
+                type: "GET",
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }, 
+                success: function(data){
+                    $("#tablaPagos").html(data);
+                 
+                    history.pushState(null, '', url); 
+                },
+                error: function(xhr, status, error){
+                    $("#tablaPagos").html('<p class="text-danger text-center">Error al cargar los datos: '+ error+ '</p>');
+                }
+            });
+        }
+
+      
+        $(document).on("click", "#tablaPagos a.page-link", function(e){
+            e.preventDefault();
+            var url = $(this).attr("href");
+            cargarTabla(url);
+        });
+
+        
+           $("#filtroForm").on("submit", function (e) {
+            e.preventDefault(); 
+            
+            var contratoId = $("#contratoIdFiltro").val() || "";
+            var estado = $("#estadoFiltro").val() || ""; 
+            var direccionInmueble = $("#direccionInmuebleFiltro").val() || ""; 
+            
+            var url = '@Url.Action("Index", "Pago")';
+
+            
+            url += `?pagina=1&contratoId=${contratoId}&estado=${estado}&direccionInmueble=${direccionInmueble}`; 
+            
+            cargarTabla(url);
+        });
+    });
+    </script>
+}

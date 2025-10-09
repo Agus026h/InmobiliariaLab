@@ -1,0 +1,83 @@
+@model devs.Models.Pago
+
+@{
+    ViewData["Title"] = "Modificar Pago";
+}
+
+<h4>Modificar Pago N° @Model.NumPago</h4>
+<hr />
+
+
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Mensaje
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-6">
+        
+        <form asp-action="Modificar" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <input type="hidden" asp-for="IdPago" />
+            <input type="hidden" asp-for="NumPago" />
+            <input type="hidden" asp-for="FechaPago" />
+            <input type="hidden" asp-for="Importe" />
+            <input type="hidden" asp-for="Estado" />
+            <input type="hidden" asp-for="IdContrato" />
+            <input type="hidden" asp-for="UsuarioCreador" />
+            
+          
+            
+            <div class="form-group mb-3">
+                <label asp-for="IdPago" class="control-label fw-bold"></label>
+                <input asp-for="IdPago" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="NumPago" class="control-label fw-bold"></label>
+                <input asp-for="NumPago" class="form-control" readonly />
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="FechaPago" class="control-label fw-bold"></label>
+              
+                <input value="@Html.DisplayFor(model => model.FechaPago)" class="form-control" readonly />
+            </div>
+            
+            <div class="form-group mb-3">
+                <label asp-for="Importe" class="control-label fw-bold"></label>
+                <input value="@Html.DisplayFor(model => model.Importe)" class="form-control" readonly />
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Estado" class="control-label fw-bold"></label>
+                <input value="@Model.Estado" class="form-control" readonly />
+            </div>
+            
+            
+            
+            <div class="form-group mb-4">
+                <label asp-for="Concepto" class="control-label fw-bold"></label>
+                <textarea asp-for="Concepto" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Concepto" class="text-danger"></span>
+            </div>
+
+            <div class="form-group d-flex justify-content-between">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fa-solid fa-save"></i> Guardar Concepto
+                </button>
+                
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

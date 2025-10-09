@@ -1,0 +1,117 @@
+@model devs.Models.Pago
+
+@{
+    ViewData["Title"] = "Detalles del Pago";
+}
+
+<h4 class="mb-4">Detalles del Pago N° @Model.NumPago</h4>
+<hr />
+
+<div class="row">
+    
+    
+    <div class="col-md-6">
+        <h5 class="mb-3">Informacion del Pago</h5>
+        
+        <div class="form-group mb-2">
+            <label asp-for="IdPago" class="control-label fw-bold"></label>
+            <input asp-for="IdPago" class="form-control" readonly />
+        </div>
+        <div class="form-group mb-2">
+            <label asp-for="NumPago" class="control-label fw-bold"></label>
+            <input asp-for="NumPago" class="form-control" readonly />
+        </div>
+        <div class="form-group mb-2">
+            <label asp-for="FechaPago" class="control-label fw-bold"></label>
+            <input value="@Html.DisplayFor(model => model.FechaPago)" class="form-control" readonly />
+        </div>
+        <div class="form-group mb-2">
+            <label asp-for="Importe" class="control-label fw-bold"></label>
+            <input value="@Html.DisplayFor(model => model.Importe)" class="form-control" readonly />
+        </div>
+        <div class="form-group mb-2">
+            <label asp-for="Estado" class="control-label fw-bold"></label>
+            <input asp-for="Estado" class="form-control" value="@Model.Estado.ToString()" readonly />
+        </div>
+        <div class="form-group mb-4">
+            <label asp-for="Concepto" class="control-label fw-bold"></label>
+            <textarea asp-for="Concepto" class="form-control" rows="3" readonly></textarea>
+        </div>
+
+      
+        <h5 class="mt-4 mb-3">Usuarios Asociados</h5>
+
+        <div class="form-group mb-2">
+            <label class="control-label fw-bold">Creador</label>
+            <input value="@Model.UsuarioCreadorC?.Nombre @Model.UsuarioCreadorC?.Apellido" class="form-control" readonly />
+        </div>
+        
+        @if (Model.Estado == EstadoPago.Anulado && Model.UsuarioAnuladorC != null)
+        {
+            <div class="form-group mb-2 text-danger">
+                <label class="control-label fw-bold">Anulador</label>
+                <input value="@Model.UsuarioAnuladorC.Nombre @Model.UsuarioAnuladorC.Apellido" class="form-control" readonly />
+            </div>
+        }
+        
+    </div>
+
+    
+    <div class="col-md-6">
+        <h5 class="mb-3">Información del Contrato e Inmueble</h5>
+
+        @if (Model.ContratoC != null)
+        {
+            <div class="form-group mb-2">
+                <label class="control-label fw-bold">N° Contrato</label>
+                <input value="@Model.ContratoC.IdContrato" class="form-control" readonly />
+            </div>
+            
+            <h6 class="mt-4 mb-3">Detalles del Inquilino</h6>
+            <div class="form-group mb-2">
+                <label class="control-label">Inquilino (Nombre)</label>
+                <input value="@Model.ContratoC.InquilinoC?.Nombre" class="form-control" readonly />
+            </div>
+            <div class="form-group mb-2">
+                <label class="control-label">Inquilino (Apellido)</label>
+                <input value="@Model.ContratoC.InquilinoC?.Apellido" class="form-control" readonly />
+            </div>
+            
+            <h6 class="mt-4 mb-3">Detalles del Inmueble</h6>
+            <div class="form-group mb-2">
+                <label class="control-label">Dirección</label>
+                <input value="@Model.ContratoC.InmuebleC?.Direccion" class="form-control" readonly />
+            </div>
+            <div class="form-group mb-2">
+                <label class="control-label">Tipo</label>
+                <input value="@Model.ContratoC.InmuebleC?.Tipo" class="form-control" readonly />
+            </div>
+            <div class="form-group mb-2">
+                <label class="control-label">Monto Mensual del Contrato</label>
+                <input value="@Html.DisplayFor(m => m.ContratoC.MontoMensual)" class="form-control" readonly />
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning">No se pudo cargar la informacion del Contrato asociado</div>
+        }
+    </div>
+</div>
+
+<hr />
+
+
+<div class="d-flex justify-content-start gap-2">
+    
+   
+    @if (Model.Estado != EstadoPago.Anulado)
+    {
+        <a asp-action="Modificar" asp-route-idPago="@Model.IdPago" class="btn btn-primary">
+            <i class="fa-solid fa-pen"></i> Editar Concepto
+        </a>
+    }
+
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+    </a>
+</div>

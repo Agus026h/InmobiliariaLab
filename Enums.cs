@@ -28,4 +28,12 @@ namespace devs.Models
         Administrador,
         User
     }
+    
+    public enum EstadoPago
+    {
+        
+        Pendiente = 0,
+        Pagado = 1,
+        Anulado = 2
+    }
 }

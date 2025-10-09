@@ -1,0 +1,107 @@
+@model devs.Models.Pago
+
+@{
+    ViewData["Title"] = "Registrar Pago";
+    
+    var listaContratos = (IList<devs.Models.Contrato>)ViewBag.Contratos;
+
+   //saco a anulado de la lista de opciones
+   var estadosDisponibles = Enum.GetValues(typeof(EstadoPago))
+                               .Cast<EstadoPago>()
+                               .Where(e => e != EstadoPago.Anulado)
+                               .Select(e => new SelectListItem
+                               {
+                                   Value = e.ToString(),
+                                   Text = e.ToString()
+                               })
+                               .ToList();
+}
+
+<h4>Registrar Nuevo Pago</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        
+        <form asp-action="Crear" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+           
+            
+           
+            <div class="form-group mb-3">
+                <label asp-for="IdContrato" class="control-label">Contrato Relacionado:</label>
+                
+               
+                <select asp-for="IdContrato" class="form-select" name="IdContrato">
+                    <option value="">-- Seleccione un Contrato --</option>
+                    @foreach (var contrato in listaContratos)
+                    {
+                        
+                        <option value="@contrato.IdContrato">
+                                
+                           
+                            Cód. @contrato.IdContrato | @contrato.InmuebleC?.Direccion | Monto: @contrato.MontoMensual:C
+                        </option>
+                    }
+                </select>
+                <span asp-validation-for="IdContrato" class="text-danger"></span>
+            </div>
+            
+          
+            <div class="form-group mb-3">
+                <label asp-for="NumPago" class="control-label"></label>
+                <input asp-for="NumPago" class="form-control" />
+                <span asp-validation-for="NumPago" class="text-danger"></span>
+            </div>
+
+           
+            <div class="form-group mb-3">
+                <label asp-for="FechaPago" class="control-label"></label>
+                <input type="date" asp-for="FechaPago" class="form-control" value="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="FechaPago" class="text-danger"></span>
+            </div>
+
+          
+            <div class="form-group mb-3">
+                <label asp-for="Importe" class="control-label"></label>
+                <input asp-for="Importe" class="form-control" />
+                <span asp-validation-for="Importe" class="text-danger"></span>
+            </div>
+
+           
+            <div class="form-group mb-3">
+                <label asp-for="Concepto" class="control-label"></label>
+                <input asp-for="Concepto" class="form-control" placeholder="Ej: Pago de alquiler mes de Marzo" />
+                <span asp-validation-for="Concepto" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Estado" class="control-label"></label>
+                
+                <select asp-for="Estado" 
+                        asp-items="@estadosDisponibles" 
+                        class="form-control">
+                    <option value="">-- Seleccione el Estado --</option>
+                </select>
+            </div>
+            
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">Registrar Pago</button>
+                <a asp-action="Index" class="btn btn-secondary">Volver al Listado</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info mt-3">
+        @ViewBag.Mensaje
+    </div>
+}
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+
+}

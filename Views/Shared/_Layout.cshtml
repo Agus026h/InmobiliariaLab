@@ -65,10 +65,17 @@
                                 <li><a class="dropdown-item" asp-area="" asp-controller="inmueble" asp-action="Crear">Registrar inmueble</a></li>
                             </ul>
                         </li>
+                        <li class="nav-item dropdown hover-effect">
+                        <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu4">Pagos</a>
+                         <ul class="dropdown-menu" aria-labelledby="menu4">
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Pago" asp-action="Index" >Listado de Pagos</a></li>
+                            <li><a class="dropdown-item" asp-area="" asp-controller="Pago" asp-action="Crear">Registrar Pago</a></li>
+                         </ul>
+                        </li>
                           
                           <li class="nav-item dropdown hover-effect">
-                            <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu4">Contratos</a>
-                            <ul class="dropdown-menu" aria-labelledby="menu4">
+                            <a class="nav-link dropdown-toggle text-dark" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="menu5">Contratos</a>
+                            <ul class="dropdown-menu" aria-labelledby="menu5">
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Contrato" asp-action="Index" >Listado de Contratos</a></li>
                                 <li><a class="dropdown-item" asp-area="" asp-controller="Contrato" asp-action="Crear">Crear Contrato</a></li>
                             </ul>

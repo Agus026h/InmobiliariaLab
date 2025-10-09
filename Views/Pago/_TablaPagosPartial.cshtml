@@ -1,0 +1,152 @@
+@model IEnumerable<devs.Models.Pago>
+
+
+@{
+    var Pagina = ViewBag.Pagina ?? 1;
+    var TotalPaginas = ViewBag.TotalPaginas ?? 1;
+    
+    // Filtros 
+    var ContratoIdFiltro = ViewBag.ContratoIdFiltro as int?;
+    var EstadoFiltro = ViewBag.EstadoFiltro as string;
+    var DireccionInmuebleFiltro = ViewBag.DireccionInmuebleFiltro as string;
+    
+    var filtrosQuery = "";
+    if (ContratoIdFiltro.HasValue)
+    {
+        filtrosQuery += $"&contratoId={ContratoIdFiltro.Value}"; 
+    }
+    if (!string.IsNullOrEmpty(EstadoFiltro))
+    {
+        filtrosQuery += $"&estado={EstadoFiltro}";
+    }
+    if (!string.IsNullOrEmpty(DireccionInmuebleFiltro))
+    {
+        filtrosQuery += $"&direccionInmueble={DireccionInmuebleFiltro}";
+    }
+    var idUsuarioLogueado = ViewBag.IdUsuarioLogueado ?? 0;
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.NumPago)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaPago)</th>
+            <th>@Html.DisplayNameFor(model => model.Importe)</th>
+            <th>Contrato / Inmueble</th>
+            <th>@Html.DisplayNameFor(model => model.Concepto)</th>
+            <th>@Html.DisplayNameFor(model => model.Estado)</th>
+            <th>Creador / Anulador</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr class="@(item.Estado == EstadoPago.Anulado ? "table-danger" : "")">
+                <td>@Html.DisplayFor(modelItem => item.NumPago)</td>
+                <td>@Html.DisplayFor(modelItem => item.FechaPago)</td>
+                <td>@Html.DisplayFor(modelItem => item.Importe)</td>
+                <td>
+                    Contrato N°: **@item.IdContrato**<br/>
+                    Inmueble: @item.ContratoC?.InmuebleC?.Direccion
+                </td>
+                <td>@Html.DisplayFor(modelItem => item.Concepto)</td>
+                <td>
+                    <span class="badge @(item.Estado == EstadoPago.Pagado ? "bg-success" : item.Estado == EstadoPago.Pendiente ? "bg-warning" : "bg-danger")">
+                        @item.Estado
+                    </span>
+                </td>
+                <td>
+            
+                    Creador: **@item.UsuarioCreadorC.Nombre @item.UsuarioCreadorC.Apellido**<br/>
+                    @if (item.Estado == EstadoPago.Anulado)
+                    {
+                        
+                    <span>Anulador: **@item.UsuarioAnuladorC.Nombre @item.UsuarioAnuladorC.Apellido**</span>
+                    }
+                </td>
+                <td>
+                    <div class="btn-group" role ="group"> 
+                       
+                        <a class="btn btn-secondary btn-sm" asp-action="Detalles" asp-route-idPago="@item.IdPago" title="Detalles">
+                            <i class="fa-solid fa-eye"></i>
+                        </a> 
+                        @if (item.Estado == EstadoPago.Pendiente) 
+                            {
+                                <form asp-action="Pagar" asp-route-id="@item.IdPago" method="post"
+                                    onsubmit="return confirm('Confirma el registro del Pago N° @item.NumPago como Pagado');"
+                                    style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm" title="Marcar como Pagado">
+                                        <i class="fa-solid fa-money-check-dollar"></i>
+                                    </button>
+                                </form>
+                            }
+
+                        @if (item.Estado == EstadoPago.Pendiente || item.Estado == EstadoPago.Pagado )
+                        {
+                            
+                            <a class = "btn btn-primary btn-sm" asp-action="Modificar" asp-route-idPago="@item.IdPago" title="Editar Concepto">
+                                <i class="fa-solid fa-pen"></i>
+                            </a>
+                            
+                            
+                            <form asp-action="BajaLogica" asp-route-id="@item.IdPago" method="post"
+                                  onsubmit="return confirm('ATENCION: Esta a punto de ANULAR el Pago N° @item.NumPago. Desea continuar?');"
+                                  style="display:inline;">
+                                  
+                               
+                                <input type="hidden" name="idUsuarioAnulador" value="@idUsuarioLogueado" />
+                                
+                                <button type="submit" class="btn btn-danger btn-sm" title = "Anular Pago">
+                                    <i class="fa-solid fa-ban"></i>
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        @if (Pagina > 1)
+        {
+            <li class="page-item">
+                <a class="page-link" href="~/Pago/Index?pagina=@(Pagina - 1)@filtrosQuery" aria-label="Anterior">
+                    <i class="fa-solid fa-angles-left"> </i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fa-solid fa-angles-left"></i></span>
+            </li>
+        }
+
+        @for (int i = 1; i <= TotalPaginas; i++)
+        {
+            <li class="page-item @(i == Pagina ? "active" : "")">
+                <a class="page-link" href="~/Pago/Index?pagina=@i@filtrosQuery">@i</a>
+            </li>
+        }
+        
+        @if (Pagina < TotalPaginas)
+        {
+            <li class="page-item">
+                <a class="page-link" href="~/Pago/Index?pagina=@(Pagina + 1)@filtrosQuery" aria-label="Siguiente">
+                    <i class="fa-solid fa-angles-right"></i>
+                </a>
+            </li>
+        }
+        else
+        {
+            <li class="page-item disabled">
+                <span class="page-link"><i class="fa-solid fa-angles-right" ></i></span>
+            </li>
+        }
+    </ul>
+</nav>
