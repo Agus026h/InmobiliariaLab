@@ -1,6 +1,7 @@
 using devs.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace devs.Controllers
 {
@@ -88,6 +89,7 @@ namespace devs.Controllers
             ViewBag.Inquilinos = _repositorioInquilino.verTodos();
             if (ModelState.IsValid)
             {
+                c.IdUsuarioCredor = int.Parse(User.FindFirstValue("IdUsuario"));
                 _repositorio.Alta(c);
                 TempData["Message"] = "contrato creado correctamente";
                 return RedirectToAction(nameof(Index));
@@ -143,7 +145,8 @@ namespace devs.Controllers
         {
             try
             {
-                _repositorio.BajaLogica(id);
+                var idUsuario = int.Parse(User.FindFirstValue("IdUsuario"));
+                _repositorio.BajaLogica(id, idUsuario);
                 TempData["Message"] = " Contrato borrado con exito";
                 return RedirectToAction(nameof(Index));
             }
@@ -170,6 +173,53 @@ namespace devs.Controllers
             return View(contrato);
         }
 
+        [HttpGet]
+        public IActionResult CrearReservaRapida(
+            int idInmueble,
+            string direccion, 
+            decimal precio,
+            DateTime fechaInicio,
+            DateTime fechaFin)
+        {
+            try
+            {
+                
+                var inmueble = _repositorioInmueble.BuscarPorId(idInmueble);
+
+                if (inmueble == null)
+                {
+                    
+                    return BadRequest("Inmueble no encontrado.");
+                }
+
+               
+                var contrato = new Contrato
+                {
+                    IdInmueble = idInmueble,
+                    InmuebleC = inmueble, 
+
+                    
+                    FechaInicio = fechaInicio,
+                    FechaFinOriginal = fechaFin, 
+                    MontoMensual = precio,
+
+                    
+                     
+                    Estado = true, 
+                };
+
+                
+                ViewBag.Inquilinos = _repositorioInquilino.verActivos();
+
+                
+                return PartialView("_CrearReservaFormPartial", contrato);
+            }
+            catch (Exception ex)
+            {
+               
+                return StatusCode(500, "Error interno del servidor al preparar el contrato.");
+            }
+        }
 
 
     }

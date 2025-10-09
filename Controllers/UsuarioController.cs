@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Identity;
 
 namespace devs.Controllers
 {
@@ -50,6 +51,7 @@ namespace devs.Controllers
                      
         public ActionResult Perfil()
         {
+            ViewBag.CambioClave = new devs.Models.CambioClaveView();
             ViewData["Title"] = "Mi perfil";
             var u = repositorio.ObtenerPorEmail(User.Identity.Name);
             return View("Edit", u);
@@ -294,15 +296,82 @@ namespace devs.Controllers
                 return View();
             }
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CambiarClave(CambioClaveView modelo)
+        {
+            
+            if (!ModelState.IsValid)
+            {
+                ViewBag.CambioClave = modelo;
+                TempData["Message"] = "ERROR: Por favor, revisa los datos ingresados";
+                return View(nameof(Edit), repositorio.ObtenerPorEmail(User.Identity.Name));
+            }
+
+            try
+            {
+                var emailLogeado = User?.Identity?.Name;
+                var usuarioDB = repositorio.ObtenerPorEmail(emailLogeado);
+
+                if (usuarioDB == null)
+                {
+                    TempData["Message"] = "Error: Usuario no encontrado";
+                    return RedirectToAction(nameof(Index), "Home");
+                }
+
+                string hashClaveViejaIngresada = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: modelo.ClaveVieja,
+                    salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+
+                
+                if (hashClaveViejaIngresada != usuarioDB.Clave)
+                {
+                    ModelState.AddModelError(string.Empty, "La Contraseña Actual ingresada es incorrecta");
+                    TempData["Message"] = "ERROR: La Contraseña Actual ingresada es incorrecta";
+                    ViewBag.CambioClave = modelo;
+                   
+                    return View(nameof(Edit), repositorio.ObtenerPorEmail(User.Identity.Name));
+                }
+
+            
+                string hashClaveNueva = Convert.ToBase64String(KeyDerivation.Pbkdf2(
+                    password: modelo.ClaveNueva,
+                    salt: System.Text.Encoding.ASCII.GetBytes(configuration["Salt"] ?? ""),
+                    prf: KeyDerivationPrf.HMACSHA1,
+                    iterationCount: 1000,
+                    numBytesRequested: 256 / 8));
+
+                
+                repositorio.ActualizarClave(usuarioDB.IdUsuario, hashClaveNueva);
+
+              
+                TempData["Message"] = "Contraseña cambiada exitosamente.";
+                ViewBag.CambioClave = new CambioClaveView();
+
+                
+                return RedirectToAction(nameof(Perfil));
+            }
+            catch (Exception ex)
+            {
+                
+                logger.LogError(ex, "Error al cambiar la clave del usuario {UserId}", User?.Identity?.Name);
+                TempData["Message"] = "Error interno al procesar el cambio de clave.";
+
+                
+                return RedirectToAction(nameof(Perfil));
+            }
+        }
 
 
 
 
-
-
+        
 
         //GET: salir
-        
+
         [Route("salir", Name = "logout")]
         public async Task<ActionResult> Logout()
         {

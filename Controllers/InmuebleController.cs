@@ -37,8 +37,36 @@ namespace devs.Controllers
          string direccion = null,
          string uso = null,
          string estado = null,
-         string nombrePropietario = null)
+         string nombrePropietario = null,
+         DateTime? fechaConsultaInicio = null, 
+         DateTime? fechaConsultaFin = null) 
+         
         {
+
+            if (fechaConsultaInicio.HasValue && fechaConsultaFin.HasValue)
+            {
+               
+                var inicio = fechaConsultaInicio.Value.Date;
+                var fin = fechaConsultaFin.Value.Date;
+
+                if (inicio > fin)
+                {
+                    
+                    (inicio, fin) = (fin, inicio);
+                }
+
+                
+                var listaF = _repositorio.listarInmueblesDisponibles(inicio, fin);
+
+                
+                ViewBag.IsDisponibilidadSearch = true; 
+                ViewBag.FechaConsultaInicio = inicio.ToShortDateString();
+                ViewBag.FechaConsultaFin = fin.ToShortDateString();
+                ViewBag.TotalRegistrosDisponibles = listaF.Count;
+                
+                
+                return View(listaF);
+            }
             var tamanio = 5;
             pagina = (Math.Max(pagina, 1));
 

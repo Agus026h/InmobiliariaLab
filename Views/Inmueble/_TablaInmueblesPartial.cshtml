@@ -10,7 +10,9 @@
     var EstadoFiltro = ViewBag.EstadoFiltro;
     var NombrePropietarioFiltro = ViewBag.NombrePropietarioFiltro; 
     var aleatorio = new Random();
-
+    bool isDisponibilidadSearch = ViewBag.IsDisponibilidadSearch ?? false;
+    string fechaInicio = ViewBag.FechaConsultaInicio ?? "";
+    string fechaFin = ViewBag.FechaConsultaFin ?? "";
     
     var filtrosQuery = "";
     if (!string.IsNullOrEmpty(DireccionFiltro))
@@ -43,6 +45,10 @@
             <th>@Html.DisplayNameFor(model => model.IdPropietario)</th>
             <th>@Html.DisplayNameFor(model => model.Estado)</th>
             <th>@Html.DisplayNameFor(model => model.Portada)</th>
+            @if (isDisponibilidadSearch)
+            {
+                <th class="text-center">Reservar</th> 
+            }
             <th></th>
         </tr>
     </thead>
@@ -67,6 +73,21 @@
                     {
                         <span>Sin foto</span>
                     }
+                    @if (isDisponibilidadSearch)
+                {
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-primary btn-reservar"
+                                data-id-inmueble="@item.IdInmueble"
+                                data-direccion="@item.Direccion"
+                                data-precio="@item.Precio"
+                                data-fecha-inicio="@fechaInicio"
+                                data-fecha-fin="@fechaFin"
+                                type="button"
+                                title="Reservar Inmueble para el periodo seleccionado">
+                            <i class="fa-solid fa-file-contract"></i> Reservar
+                        </button>
+                    </td>
+                }
                 </td>
                 <td>
                     <div class="btn-group" role ="group"> 

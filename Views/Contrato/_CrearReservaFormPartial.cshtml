@@ -1,0 +1,78 @@
+@model devs.Models.Contrato 
+@using devs.Models
+
+@{
+    
+    var inquilinos = ViewBag.Inquilinos as IEnumerable<Inquilino>;
+    
+   
+    string fechaInicioDisplay = Model.FechaInicio.ToShortDateString();
+    string fechaFinDisplay = Model.FechaFinOriginal.Value.ToShortDateString();
+}
+
+<form asp-action="Crear" asp-controller="Contrato" method="post" id="formReservaRapida">
+    
+   
+    <input type="hidden" asp-for="IdInmueble" />
+    <input type="hidden" asp-for="FechaInicio" />
+    <input type="hidden" asp-for="FechaFinOriginal" />
+    <input type="hidden" asp-for="MontoMensual" />
+    <input type="hidden" asp-for="Estado" />
+    
+    
+    <input type="hidden" asp-for="IdUsuarioCredor" value="" />
+
+
+    <div class="alert alert-primary">
+        <h5 class="alert-heading">Resumen del Contrato Rapido</h5>
+        <p class="mb-1">
+            <i class="fa-solid fa-house"></i> **Inmueble:** `@Model.InmuebleC.Direccion` (ID: @Model.IdInmueble)
+        </p>
+        <p class="mb-1">
+            <i class="fa-solid fa-calendar-alt"></i> **Periodo Tentativo:** @fechaInicioDisplay al @fechaFinDisplay
+        </p>
+        <div class="col-md-6 mb-3">
+        <label asp-for="MontoMensual" class="form-label fw-bold">
+            <i class="fa-solid fa-dollar-sign"></i> Monto Mensual
+        </label>
+       
+        <input asp-for="MontoMensual" 
+               type="number" 
+               step="0.01" 
+               class="form-control" 
+               required/>
+        <span asp-validation-for="MontoMensual" class="text-danger"></span>
+    </div>
+    </div>
+
+  
+    <div class="mb-3">
+        <label asp-for="IdInquilino" class="form-label fw-bold">
+            <i class="fa-solid fa-user-tag"></i> Seleccionar Inquilino (* Requerido)
+        </label>
+        <select asp-for="IdInquilino" class="form-select" required>
+            <option value="">-- Seleccione un Inquilino Activo --</option>
+            @if (inquilinos != null)
+            {
+                foreach (var inquilino in inquilinos)
+                {
+                    <option value="@inquilino.IdInquilino">
+                        @inquilino.Nombre @inquilino.Apellido (DNI: @inquilino.Dni)
+                    </option>
+                }
+            }
+        </select>
+        <span asp-validation-for="IdInquilino" class="text-danger"></span>
+    </div>
+
+   
+    <div class="modal-footer mt-4">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar / Cancelar</button>
+        <button type="submit" class="btn btn-success">
+            <i class="fa-solid fa-file-signature"></i> Finalizar y Crear Contrato
+        </button>
+    </div>
+</form>
+
+
+<partial name="_ValidationScriptsPartial" />

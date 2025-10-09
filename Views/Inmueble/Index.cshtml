@@ -8,7 +8,7 @@
 
     var UsoFiltro = ViewBag.UsoFiltro as string; 
     var EstadoFiltro = ViewBag.EstadoFiltro as string;
-    
+    bool isDisponibilidadSearch = ViewBag.IsDisponibilidadSearch ?? false;
     
     var usos = Enum.GetValues(typeof(devs.Models.UsoInmueble)).Cast<devs.Models.UsoInmueble>();
     var estados = Enum.GetValues(typeof(devs.Models.EstadoInmueble)).Cast<devs.Models.EstadoInmueble>();
@@ -17,8 +17,54 @@
 <h1>Listado de Inmuebles</h1>
 
 <p>
-    <a asp-action="Crear">Crear Nuevo Inmueble</a>
+    <a asp-action="Crear" class="btn btn-success">Crear Nuevo Inmueble</a>
 </p>
+<form method="get" asp-action="Index" class="mb-4 p-3 border rounded bg-info-subtle shadow-sm">
+    <div class="row align-items-end">
+        <div class="col-md-5">
+            <label for="fechaConsultaInicio" class="form-label fw-bold">Disponible Desde:</label>
+            <input type="date" 
+                   class="form-control" 
+                   name="fechaConsultaInicio" 
+                   id="fechaConsultaInicio" 
+                   value="@(Context.Request.Query["fechaConsultaInicio"])" 
+                   required>
+        </div>
+        <div class="col-md-5">
+            <label for="fechaConsultaFin" class="form-label fw-bold">Disponible Hasta:</label>
+            <input type="date" 
+                   class="form-control" 
+                   name="fechaConsultaFin" 
+                   id="fechaConsultaFin" 
+                   value="@(Context.Request.Query["fechaConsultaFin"])" 
+                   required>
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+             <button type="submit" class="btn btn-info text-white w-100">
+                 <i class="fa-solid fa-calendar-check"></i> Consultar
+             </button>
+        </div>
+    </div>
+</form>
+@if (isDisponibilidadSearch)
+{
+   
+    <h3 class="text-success mt-4">
+        Inmuebles Disponibles (@ViewBag.TotalRegistrosDisponibles)
+    </h3>
+    <p>Mostrando resultados para el período del **@ViewBag.FechaConsultaInicio** al **@ViewBag.FechaConsultaFin**.</p>
+    
+    <a asp-action="Index" class="btn btn-secondary mb-3">
+        <i class="fa-solid fa-list"></i> Volver a Listado Normal
+    </a>
+    
+    <div id="tablaInmuebles">
+       
+        @await Html.PartialAsync("_TablaInmueblesPartial", Model)
+    </div>
+}
+else
+{
 
 <form id="filtroForm">
     <div class="row mb-3">
@@ -80,11 +126,32 @@
 <div id="tablaInmuebles">
     @await Html.PartialAsync("_TablaInmueblesPartial", Model)
 </div>
+}
+<div class="modal fade" id="reservaModal" tabindex="-1" aria-labelledby="reservaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reservaModalLabel">Crear Contrato de Reserva Rápida</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalContent">
+                
+                <div class="text-center p-5">Cargando...</div>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script>
+    var reservaModalInstance = null; 
     $(document).ready(function(){
-        
+        const reservaModalElement = document.getElementById('reservaModal');
+        if (reservaModalElement) {
+            
+            reservaModalInstance = new bootstrap.Modal(reservaModalElement);
+        }
+
         function cargarTabla(url){
             
              $("#tablaInmuebles").html('<p class="text-center">Cargando inmuebles...</p>');
@@ -107,6 +174,46 @@
             var url = $(this).attr("href");
             cargarTabla(url);
         });
+        $(document).on("click", ".btn-reservar", function() {
+        var btn = $(this);
+        var idInmueble = btn.data('id-inmueble');
+        var direccion = btn.data('direccion');
+        var precio = btn.data('precio');
+        var fechaInicio = btn.data('fecha-inicio');
+        var fechaFin = btn.data('fecha-fin');
+        
+       
+        $('#modalContent').html('<div class="text-center p-5"><i class="fa-solid fa-spinner fa-spin fa-2x"></i> Cargando formulario...</div>');
+
+        
+        $.ajax({
+            url: '@Url.Action("CrearReservaRapida", "Contrato")', 
+            type: 'GET',
+            data: {
+                idInmueble: idInmueble,
+                direccion: direccion,
+                precio: precio,
+                fechaInicio: fechaInicio,
+                fechaFin: fechaFin
+            },
+            success: function(data) {
+               
+                $('#modalContent').html(data);
+                
+                
+                if (reservaModalInstance) {
+                        reservaModalInstance.show();
+                    } else {
+                        
+                        console.error("Error: Instancia de Modal no encontrada.");
+                    }
+              
+            },
+            error: function(xhr, status, error) {
+                $('#modalContent').html('<div class="alert alert-danger">Error al cargar el formulario de reserva: ' + error + '</div>');
+            }
+        });
+    });
 
         $("#filtroForm").on("submit", function (e) {
             e.preventDefault(); 
@@ -117,7 +224,7 @@
             var nombrePropietario = $("#nombrePropietarioFiltro").val() || ""; 
             
             var url = '@Url.Action("Index", "Inmueble")';
-            //crear direccion url
+           
             url += `?pagina=1&direccion=${direccion}&uso=${uso}&estado=${estado}&nombrePropietario=${nombrePropietario}`; 
             
             cargarTabla(url);

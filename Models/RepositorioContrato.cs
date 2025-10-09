@@ -19,8 +19,8 @@ public class RepositorioContrato : Conexion
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
             string sql = @"INSERT INTO contrato 
-                             (FechaInicio, FechaFinOriginal, FechaFinEfectiva, MontoMensual, Estado, IdInquilino, IdInmueble)
-                             VALUES (@fechaInicio, @fechaFinOriginal, @fechaFinEfectiva, @montoMensual, @estado, @idInquilino, @idInmueble);
+                             (FechaInicio, FechaFinOriginal, FechaFinEfectiva, MontoMensual, Estado, IdInquilino, IdInmueble, usuarioCreador)
+                             VALUES (@fechaInicio, @fechaFinOriginal, @fechaFinEfectiva, @montoMensual, @estado, @idInquilino, @idInmueble, @usuarioCreador);
                              SELECT LAST_INSERT_ID();";
 
             using (MySqlCommand command = new MySqlCommand(sql, connection))
@@ -33,6 +33,7 @@ public class RepositorioContrato : Conexion
                 command.Parameters.AddWithValue("@estado", c.Estado);
                 command.Parameters.AddWithValue("@idInquilino", c.IdInquilino);
                 command.Parameters.AddWithValue("@idInmueble", c.IdInmueble);
+                command.Parameters.AddWithValue("@usuarioCreador", c.IdUsuarioCredor);
 
                 connection.Open();
                 res = Convert.ToInt32(command.ExecuteScalar());
@@ -175,19 +176,20 @@ public class RepositorioContrato : Conexion
     }
 
 
-    public int BajaLogica(int id)
+    public int BajaLogica(int id, int idUsuario)
     {
         int res = -1;
         using (MySqlConnection connection = new MySqlConnection(connectionString))
         {
             string sql = @"UPDATE contrato
-                             SET estado = 0
+                             SET estado = 0, usuarioFinalizador = @usuarioFinalizador
                              WHERE idContrato = @idContrato";
 
             using (MySqlCommand command = new MySqlCommand(sql, connection))
             {
                 command.CommandType = CommandType.Text;
                 command.Parameters.AddWithValue("@idContrato", id);
+                command.Parameters.AddWithValue("@usuarioFinalizador", idUsuario);
                 connection.Open();
                 res = command.ExecuteNonQuery();
             }

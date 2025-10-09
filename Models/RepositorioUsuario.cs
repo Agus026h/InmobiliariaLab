@@ -206,6 +206,27 @@ public class RepositorioUsuario : Conexion
         }
         return e;
     }
+    public void ActualizarClave(int idUsuario, string nuevaClaveHash)
+    {
+       
+        using (var connection = new MySqlConnection(connectionString)) 
+        {
+            string sql = @"UPDATE Usuario SET 
+                       Clave = @Clave
+                       WHERE IdUsuario = @IdUsuario";
+
+            
+            using (var command = new MySqlCommand(sql, connection))
+            {
+                command.Parameters.AddWithValue("@Clave", nuevaClaveHash);
+                command.Parameters.AddWithValue("@IdUsuario", idUsuario);
+                connection.Open();
+                command.ExecuteNonQuery();
+            }
+            
+        }
+    }
+
         
 }
 

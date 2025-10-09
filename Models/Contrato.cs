@@ -26,10 +26,10 @@ public class Contrato
     public Inmueble? InmuebleC {get; set;}
 
 
-    //agregar despues cuando este usuario
-    //public int idUsuarioCredor { get; set; }
+    
+    public int? IdUsuarioCredor { get; set; }
 
-    //public int idUsuarioFinalizador{ get; set;}
+    public int? IdUsuarioFinalizador{ get; set;}
 
 
     public override string ToString()

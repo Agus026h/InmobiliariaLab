@@ -12,6 +12,7 @@ builder.Services.AddScoped<RepositorioContrato>();
 builder.Services.AddScoped<RepositorioImagen>();
 builder.Services.AddScoped<RepositorioUsuario>();
 builder.Services.AddScoped<RepositorioPago>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
 .AddCookie(options =>

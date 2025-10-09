@@ -69,13 +69,13 @@ public class RepositorioInmueble : Conexion
 						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
 						Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value ? "" : reader.GetString(nameof(Inmueble.Direccion)),
 						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
-						Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
+						Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value ? null : reader.GetString(nameof(Inmueble.Portada)),
 						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
 						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
 						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado))),
 						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 						Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
-						
+
 						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
 						Duenio = new Propietario
 						{
@@ -218,7 +218,7 @@ public class RepositorioInmueble : Conexion
 						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
 						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
 						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
-						Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value? null : reader.GetString(nameof(Inmueble.Portada)),
+						Portada = reader[nameof(Inmueble.Portada)] == DBNull.Value ? null : reader.GetString(nameof(Inmueble.Portada)),
 						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado))),
 						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 						Tipo = (TipoInmueble)Enum.Parse(typeof(TipoInmueble), reader.GetString(nameof(Inmueble.Tipo))),
@@ -342,7 +342,7 @@ public class RepositorioInmueble : Conexion
 		}
 		return res;
 	}
-	
+
 	// paginado con filtros
 	public (IList<Inmueble> Lista, int totalRegistro) verTodosPaginado(
 		int paginaNro = 1, int paginaTam = 5,
@@ -355,7 +355,7 @@ public class RepositorioInmueble : Conexion
 
 
 
-        //probando otra forma de armar el filtro
+		//probando otra forma de armar el filtro
 		Action<string> agregarFiltro = (condicion) =>
 		{
 			if (whereClausula.Length == 0)
@@ -393,7 +393,7 @@ public class RepositorioInmueble : Conexion
 		{
 			connection.Open();
 
-			
+
 			string contador = $"SELECT COUNT(*) FROM Inmueble i JOIN Propietario p ON i.IdPropietario = p.IdPropietario {filtro}";
 
 			using (var countCommand = new MySqlCommand(contador, connection))
@@ -402,7 +402,7 @@ public class RepositorioInmueble : Conexion
 				totalRegistro = Convert.ToInt32(countCommand.ExecuteScalar());
 			}
 
-			
+
 			String sql = @$"SELECT
             i.IdInmueble, i.Direccion, i.Uso, i.Ambientes, i.Precio, i.IdPropietario, i.Estado, i.Portada, 
             p.Nombre AS PropietarioNombre, p.Apellido AS PropietarioApellido
@@ -424,16 +424,16 @@ public class RepositorioInmueble : Conexion
 					{
 						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
 						Direccion = reader.GetString(nameof(Inmueble.Direccion)),
-						
+
 						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
 						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
 						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
 						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
-						 Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado)), true),
-						
+						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado)), true),
+
 						Portada = reader.IsDBNull(reader.GetOrdinal(nameof(Inmueble.Portada))) ? null : reader.GetString(nameof(Inmueble.Portada)),
 
-						
+
 						Duenio = new Propietario
 						{
 							Nombre = reader.GetString("PropietarioNombre"),
@@ -447,6 +447,69 @@ public class RepositorioInmueble : Conexion
 			return (listaI, totalRegistro);
 		}
 	}
+
+	public IList<Inmueble> listarInmueblesDisponibles(DateTime fechaConsultaInicio, DateTime fechaConsultaFin)
+	{
+		IList<Inmueble> listaI = new List<Inmueble>();
+
+		using (MySqlConnection connection = new MySqlConnection(connectionString))
+		{
+			connection.Open();
+
+			
+			string sql = @$"
+            SELECT i.*, p.Nombre AS PropietarioNombre, p.Apellido AS PropietarioApellido
+            FROM Inmueble i
+            LEFT JOIN Propietario p ON i.IdPropietario = p.IdPropietario
+            WHERE i.Estado = 1 
+              AND i.IdInmueble NOT IN (
+                 
+                  SELECT c.IdInmueble
+                  FROM Contrato c
+                  WHERE c.Estado = 1
+                    AND c.FechaInicio <= @FechaFin   
+                    AND c.FechaFinOriginal >= @FechaInicio 
+              )
+            ORDER BY i.IdInmueble;
+        ";
+
+			using (MySqlCommand command = new MySqlCommand(sql, connection))
+			{
+				
+				command.Parameters.AddWithValue("@FechaInicio", fechaConsultaInicio.Date);
+				command.Parameters.AddWithValue("@FechaFin", fechaConsultaFin.Date);
+
+				var reader = command.ExecuteReader();
+
+				while (reader.Read())
+				{
+					
+					Inmueble i = new Inmueble
+					{
+						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
+						Direccion = reader[nameof(Inmueble.Direccion)] == DBNull.Value ? "" : reader.GetString(nameof(Inmueble.Direccion)),
+						Uso = (UsoInmueble)Enum.Parse(typeof(UsoInmueble), reader.GetString(nameof(Inmueble.Uso))),
+						Ambientes = reader.GetInt32(nameof(Inmueble.Ambientes)),
+						Precio = reader.GetDecimal(nameof(Inmueble.Precio)),
+						Estado = (EstadoInmueble)Enum.Parse(typeof(EstadoInmueble), reader.GetString(nameof(Inmueble.Estado)), true),
+						Portada = reader.IsDBNull(reader.GetOrdinal(nameof(Inmueble.Portada))) ? null : reader.GetString(nameof(Inmueble.Portada)),
+						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
+						Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
+						
+						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
+						Duenio = new Propietario
+						{
+							Nombre = reader.GetString("PropietarioNombre"),
+							Apellido = reader.GetString("PropietarioApellido")
+						}
+					};
+					listaI.Add(i);
+				}
+			}
+			return listaI;
+		}
+	}
+
 
 
 }
