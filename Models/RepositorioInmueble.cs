@@ -456,7 +456,7 @@ public class RepositorioInmueble : Conexion
 		{
 			connection.Open();
 
-			
+
 			string sql = @$"
             SELECT i.*, p.Nombre AS PropietarioNombre, p.Apellido AS PropietarioApellido
             FROM Inmueble i
@@ -475,7 +475,7 @@ public class RepositorioInmueble : Conexion
 
 			using (MySqlCommand command = new MySqlCommand(sql, connection))
 			{
-				
+
 				command.Parameters.AddWithValue("@FechaInicio", fechaConsultaInicio.Date);
 				command.Parameters.AddWithValue("@FechaFin", fechaConsultaFin.Date);
 
@@ -483,7 +483,7 @@ public class RepositorioInmueble : Conexion
 
 				while (reader.Read())
 				{
-					
+
 					Inmueble i = new Inmueble
 					{
 						IdInmueble = reader.GetInt32(nameof(Inmueble.IdInmueble)),
@@ -495,7 +495,7 @@ public class RepositorioInmueble : Conexion
 						Portada = reader.IsDBNull(reader.GetOrdinal(nameof(Inmueble.Portada))) ? null : reader.GetString(nameof(Inmueble.Portada)),
 						Latitud = reader.GetDecimal(nameof(Inmueble.Latitud)),
 						Longitud = reader.GetDecimal(nameof(Inmueble.Longitud)),
-						
+
 						IdPropietario = reader.GetInt32(nameof(Inmueble.IdPropietario)),
 						Duenio = new Propietario
 						{
@@ -510,6 +510,35 @@ public class RepositorioInmueble : Conexion
 		}
 	}
 
+	public int VerDisponibilidad(int id, DateTime fechaInicio, DateTime fechaFin)
+	{
+		int res = 0;
+		
+		
+
+		using (var connection = new MySqlConnection(connectionString))
+		{
+			string sql = @$"
+					SELECT COUNT(c.IdInmueble)
+					FROM Contrato c
+					WHERE c.IdInmueble = @IdInmueble
+					AND c.Estado = 1
+					AND c.FechaInicio <= @FechaFin
+					AND c.FechaFinOriginal >= @FechaInicio;";
+			using (var command = new MySqlCommand(sql, connection))
+			{
+				connection.Open();
+				command.Parameters.AddWithValue("FechaFin", fechaFin);
+				command.Parameters.AddWithValue("FechaInicio", fechaInicio);
+				command.Parameters.AddWithValue("IdInmueble", id);
+
+				command.CommandType = CommandType.Text;
+				res = Convert.ToInt32(command.ExecuteScalar());
+			}
+			return res;
+		}
+	}
+	
 
 
 }

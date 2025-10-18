@@ -3,8 +3,8 @@
 
 @{
     ViewData["Title"] = "Crear";
-    var listaInquilinos = (IList<Inquilino>)ViewBag.Inquilinos;
-    var listaInmuebles = (IList<Inmueble>)ViewBag.Inmuebles;
+    //var listaInquilinos = (IList<Inquilino>)ViewBag.Inquilinos;
+    //var listaInmuebles = (IList<Inmueble>)ViewBag.Inmuebles;
 }
 
 <h4>Nuevo Contrato</h4>
@@ -20,22 +20,22 @@
 
             <div class="form-group">
                 <label asp-for="FechaInicio" class="control-label"></label>
-                <input type= "date" asp-for="FechaInicio" class="form-control" />
+                <input type= "date" id="FechaInicio" asp-for="FechaInicio" class="form-control check-field" required />
                 <span asp-validation-for="FechaInicio" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="FechaFinOriginal" class="control-label"></label>
-                <input type= "date" asp-for="FechaFinOriginal" class="form-control" />
+                <input type= "date" id="FechaFinOriginal" asp-for="FechaFinOriginal" class="form-control check-field" required/>
                 <span asp-validation-for="FechaFinOriginal" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="MontoMensual" class="control-label"></label>
-                <input asp-for="MontoMensual" class="form-control" />
+                <input asp-for="MontoMensual" class="form-control" required/>
                 <span asp-validation-for="MontoMensual" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Estado" class="control-label"></label>
-                <select asp-for="Estado" class="control-label">
+                <select asp-for="Estado" class="control-label" required>
                    <option value="true">Activo</option>
                    <option value="false">Inactivo</option>
 
@@ -45,14 +45,14 @@
                 <div class="form-group">
              <label asp-for="IdInmueble" class="control-label">Inmueble</label>
     
-              <select id="IdInmueble" class="form-control" name="IdInmueble"></select>
+              <select id="IdInmueble" class="form-control check-field" name="IdInmueble" ></select>
               <span asp-validation-for="IdInmueble" class="text-danger"></span>
              </div>
 
              <div class="form-group">
              <label asp-for="IdInquilino" class="control-label ">Inquilino</label>
     
-             <select id="IdInquilino" class="form-control" name="IdInquilino"></select>
+             <select id="IdInquilino" class="form-control" name="IdInquilino" required></select>
              <span asp-validation-for="IdInquilino" class="text-danger"></span>
             </div>
             
@@ -82,9 +82,17 @@
 				</select>
 				<span asp-validation-for="IdInquilino" class="text-danger"></span>
 			</div> *@
-            <div class="form-group">
-                <button type="submit"  class="btn btn-primary ">Crear</button>
+            <div class="form-group d-flex justify-content-between"> 
                 
+                
+                <button type="button" id="btnVerificarDisponibilidad" class="btn btn-info">
+                    Verificar Disponibilidad
+                </button>
+                
+                
+                <button type="submit" id="btnCrearContrato" class="btn btn-light btn-disabled-style" disabled>
+                    Crear Contrato
+                </button>
             </div>
         </form>
     </div>
@@ -154,6 +162,74 @@
                     };
                 }
             }
+        });
+
+        function desactivarCrearYMostrarMensaje(mensaje) {
+            let $btnCrear = $('#btnCrearContrato');
+            
+            
+            $btnCrear.prop('disabled', true);
+            
+            //cambio las clases del boton
+            $btnCrear.removeClass('btn-primary').addClass('btn-light btn-disabled-style'); 
+
+            $('#mensajeDisponibilidad').remove(); 
+            if (mensaje) {
+                $('<div id="mensajeDisponibilidad" class="alert alert-warning mt-2">' + mensaje + '</div>').insertAfter('#btnVerificarDisponibilidad');
+            }
+        }
+
+
+        $('.check-field').on('change', function() {
+            
+            desactivarCrearYMostrarMensaje('Verifique la disponibilidad antes de crear');
+        });
+
+        $('#btnVerificarDisponibilidad').on('click', function() {
+            let fechaInicio = $('#FechaInicio').val();
+            let fechaFin = $('#FechaFinOriginal').val();
+            let idInmueble = $('#IdInmueble').val(); 
+
+            
+            if (!fechaInicio || !fechaFin || !idInmueble) {
+                alert('Debe seleccionar la fecha de inicio, fecha de fin y el inmueble');
+                return;
+            }
+
+           
+            let $btn = $(this);
+            $btn.prop('disabled', true).text('Verificando...');
+            $('#mensajeDisponibilidad').remove(); 
+            
+            
+            $.ajax({
+                url: `@Url.Action("VerificarDisponibilidad", "Contrato")`, 
+                type: 'GET',
+                data: {
+                    idInmueble: idInmueble,
+                    fechaInicio: fechaInicio,
+                    fechaFin: fechaFin
+                },
+                success: function(res) {
+                    let $btnCrear = $('#btnCrearContrato');
+                    if (res.disponible) {
+                        
+                        $('#btnCrearContrato').prop('disabled', false);
+                        $btnCrear.removeClass('btn-light btn-disabled-style').addClass('btn-primary');
+                        $('<div id="mensajeDisponibilidad" class="alert alert-success mt-2"> Inmueble disponible!</div>').insertAfter($btn);
+                    } else {
+                        
+                        desactivarCrearYMostrarMensaje(res.mensaje);
+                    }
+                },
+                error: function() {
+                    desactivarCrearYMostrarMensaje('Error al verificar la disponibilidad');
+                },
+                complete: function() {
+                    
+                    $btn.prop('disabled', false).text('Verificar Disponibilidad');
+                }
+            });
         });
 
 

@@ -27,7 +27,7 @@ namespace devs.Controllers
         // GET: ContratoController
         // EN ContratoController.cs
 
-    public IActionResult Index(
+     public IActionResult Index(
         int pagina = 1,
         int? idInmueble = null,
         string estado = null) 
@@ -82,11 +82,13 @@ namespace devs.Controllers
             return View();
 
         }
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Crear(Contrato c)
         {
-            ViewBag.Inmuebles = _repositorioInmueble.ObtenerTodos();
-            ViewBag.Inquilinos = _repositorioInquilino.verTodos();
+            //ViewBag.Inmuebles = _repositorioInmueble.ObtenerTodos();
+            //ViewBag.Inquilinos = _repositorioInquilino.verTodos();
             if (ModelState.IsValid)
             {
                 c.IdUsuarioCredor = int.Parse(User.FindFirstValue("IdUsuario"));
@@ -118,8 +120,7 @@ namespace devs.Controllers
         {
             try
             {
-                ViewBag.Inmuebles = _repositorioInmueble.ObtenerTodos();
-                ViewBag.Inquilinos = _repositorioInquilino.verTodos();
+                
                 if (ModelState.IsValid)
                 {
                     _repositorio.Modificar(c);
@@ -176,50 +177,81 @@ namespace devs.Controllers
         [HttpGet]
         public IActionResult CrearReservaRapida(
             int idInmueble,
-            string direccion, 
+            string direccion,
             decimal precio,
             DateTime fechaInicio,
             DateTime fechaFin)
         {
             try
             {
-                
+
                 var inmueble = _repositorioInmueble.BuscarPorId(idInmueble);
 
                 if (inmueble == null)
                 {
-                    
+
                     return BadRequest("Inmueble no encontrado.");
                 }
 
-               
+
                 var contrato = new Contrato
                 {
                     IdInmueble = idInmueble,
-                    InmuebleC = inmueble, 
+                    InmuebleC = inmueble,
 
-                    
+
                     FechaInicio = fechaInicio,
-                    FechaFinOriginal = fechaFin, 
+                    FechaFinOriginal = fechaFin,
                     MontoMensual = precio,
 
-                    
-                     
-                    Estado = true, 
+
+
+                    Estado = true,
                 };
 
-                
+
                 ViewBag.Inquilinos = _repositorioInquilino.verActivos();
 
-                
+
                 return PartialView("_CrearReservaFormPartial", contrato);
             }
             catch (Exception ex)
             {
-               
+
                 return StatusCode(500, "Error interno del servidor al preparar el contrato.");
             }
         }
+        [HttpGet]
+        public IActionResult VerificarDisponibilidad(int idInmueble, DateTime fechaInicio, DateTime fechaFin)
+        {
+            
+            if (idInmueble <= 0 || fechaInicio > fechaFin)
+            {
+                return Json(new { Disponible = false, Mensaje = "Datos de entrada invalidos" });
+            }
+
+            
+
+            int contratosSuperpuestos = _repositorioInmueble.VerDisponibilidad(idInmueble, fechaInicio, fechaFin);
+
+            // Determinar la disponibilidad
+            bool disponible = contratosSuperpuestos == 0;
+            string mensaje;
+
+            if (disponible)
+            {
+                mensaje = "Inmueble disponible en las fechas seleccionadas";
+            }
+            else
+            {
+                mensaje = $"El inmueble ya tiene {contratosSuperpuestos} contrato(s) activo(s) en estas fechas";
+            }
+
+            
+            return Json(new { Disponible = disponible, Mensaje = mensaje });
+        }
+    
+
 
 
     }
