@@ -106,8 +106,7 @@ namespace devs.Controllers
         [HttpGet]
         public ActionResult Modificar(int id)
         {
-            ViewBag.Inmuebles = _repositorioInmueble.ObtenerTodos();
-            ViewBag.Inquilinos = _repositorioInquilino.verTodos();
+            
             var contra = _repositorio.BuscarId(id);
             return View(contra);
 
